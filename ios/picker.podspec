@@ -3,7 +3,7 @@
 # Run `pod lib lint picker.podspec` to validate before publishing.
 #
 Pod::Spec.new do |s|
-  s.name             = 'picker'
+  s.name             = 'picker_pro_max_ultra'
   s.version          = '0.0.1'
   s.summary          = 'A new Flutter project.'
   s.description      = <<-DESC
