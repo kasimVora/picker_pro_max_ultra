@@ -44,7 +44,27 @@ class _MyHomePageState extends State<MyHomePage> {
       body: previewList(),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
-        onPressed: () => openImagePicker(context),
+        onPressed: () async{
+          openImagePicker(context: context);
+
+          List<Media>? selectedImages = await openImagePicker(
+            context: context,
+            onPicked: (selectedList) {
+              debugPrint("Picked ${selectedList.first.file!.path} images");
+            },
+            onCancel: () {
+              debugPrint("Picker was canceled");
+            },
+            mediaCount: MediaCount.multiple,
+            mediaType: MediaType.image,
+          );
+
+          if (selectedImages != null && selectedImages.isNotEmpty) {
+            setState(() {
+              mediaList = selectedImages;
+            });
+          }
+        },
       ),
     );
   }
@@ -74,63 +94,4 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void openImagePicker(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true, // Allows custom height
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(20), // Rounded top corners
-        ),
-      ),
-      builder: (context) {
-        return DraggableScrollableSheet(
-          expand: false, // Allows dragging
-          initialChildSize: 0.75, // Opens at 75% of screen height
-          minChildSize: 0.5, // Minimum height (50%)
-          maxChildSize: 1.0, // Maximum height (Full screen)
-          builder: (context, scrollController) {
-            return ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-              child: MediaPicker(
-                onPicked: (selectedList) {
-                  setState(() => mediaList = selectedList);
-                  Navigator.pop(context);
-                },
-                onCancel: () => Navigator.pop(context),
-                mediaCount: MediaCount.multiple,
-                mediaType: MediaType.image,
-                decoration: PickerDecoration(
-                  blurStrength: 0,
-                  scaleAmount: 1,
-                  counterBuilder: (context, index) {
-                    if (index == null) return const SizedBox();
-                    return Align(
-                      alignment: Alignment.topRight,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.green,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.all(4),
-                        child: Text(
-                          '$index',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-
-
-  }
 }

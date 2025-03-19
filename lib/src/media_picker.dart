@@ -141,6 +141,7 @@ class _MediaPickerState extends State<MediaPicker> {
           onDone: (data) async {
             var result = await MediaConversionService.toMediaList(data);
             widget.onPicked(result);
+            Navigator.of(context).pop();
           },
           albumController: _albumController,
           selectedAlbum: _selectedAlbum ?? defaultSelectedAlbum,
@@ -188,6 +189,7 @@ class _MediaPickerState extends State<MediaPicker> {
     }
   }
 }
+
 
 ///call this function to capture and get media from camera
 void openCamera({
