@@ -45,8 +45,6 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () async{
-          openImagePicker(context: context);
-
           List<Media>? selectedImages = await openImagePicker(
             context: context,
             onPicked: (selectedList) {
