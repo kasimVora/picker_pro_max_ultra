@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:picker/media_picker_widget.dart';
+import 'package:picker_pro_max_ultra/media_picker_widget.dart';
 
 void main() {
   runApp(const MyApp());

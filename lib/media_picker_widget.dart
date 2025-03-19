@@ -7,8 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:photo_manager/photo_manager.dart';
-import 'package:picker/src/media_conversion_service.dart';
-import 'package:picker/src/media_view_model.dart';
+
+import 'package:picker_pro_max_ultra/src/media_conversion_service.dart';
+import 'package:picker_pro_max_ultra/src/media_view_model.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import 'src/album_selector.dart';

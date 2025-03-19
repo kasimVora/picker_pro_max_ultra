@@ -311,7 +311,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.6.4"
-  picker:
+  picker_pro_max_ultra:
     dependency: "direct main"
     description:
       path: ".."
