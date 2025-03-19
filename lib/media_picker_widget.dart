@@ -31,50 +31,59 @@ Future<List<Media>?> openImagePicker({
 }) async {
   return await showModalBottomSheet<List<Media>>(
     context: context,
+    isScrollControlled: true, // Allows custom height
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(
         top: Radius.circular(20), // Rounded top corners
       ),
     ),
     builder: (context) {
-      return ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        child: MediaPicker(
-          onPicked: (selectedList) {
-            onPicked?.call(selectedList); // Call callback
-            Navigator.pop(context, selectedList); // Return selectedList
-          },
-          onCancel: () {
-            onCancel?.call(); // Call cancel callback
-            Navigator.pop(context, null); // Return null if canceled
-          },
-          mediaCount: mediaCount, // Use passed mediaCount
-          mediaType: mediaType, // Use passed mediaType
-          decoration: PickerDecoration(
-            blurStrength: 0,
-            scaleAmount: 1,
-            counterBuilder: (context, index) {
-              if (index == null) return const SizedBox();
-              return Align(
-                alignment: Alignment.topRight,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding: const EdgeInsets.all(4),
-                  child: Text(
-                    '$index',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+      return DraggableScrollableSheet(
+        expand: false, // Allows dragging
+        initialChildSize: 0.75, // Opens at 75% of screen height
+        minChildSize: 0.5, // Minimum height (50%)
+        maxChildSize: 1.0, // Maximum height (Full screen)
+        builder: (context, scrollController) {
+          return ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            child: MediaPicker(
+              onPicked: (selectedList) {
+                onPicked?.call(selectedList); // Call callback
+                Navigator.pop(context, selectedList); // Return selectedList
+              },
+              onCancel: () {
+                onCancel?.call(); // Call cancel callback
+                Navigator.pop(context, null); // Return null if canceled
+              },
+              mediaCount: mediaCount, // Use passed mediaCount
+              mediaType: mediaType, // Use passed mediaType
+              decoration: PickerDecoration(
+                blurStrength: 0,
+                scaleAmount: 1,
+                counterBuilder: (context, index) {
+                  if (index == null) return const SizedBox();
+                  return Align(
+                    alignment: Alignment.topRight,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.all(4),
+                      child: Text(
+                        '$index',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
+                  );
+                },
+              ),
+            ),
+          );
+        },
       );
     },
   );
