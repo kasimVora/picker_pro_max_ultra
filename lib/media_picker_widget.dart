@@ -48,8 +48,7 @@ Future<List<Media>?> openImagePicker({
           return ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
             child: MediaPicker(
-              onPicked: (selectedList) {
-                onPicked?.call(selectedList); // Call callback
+              onPicked: (selectedList) {// Call callback
                 Navigator.pop(context, selectedList); // Return selectedList
               },
               onCancel: () {
