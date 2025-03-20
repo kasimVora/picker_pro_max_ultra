@@ -2,10 +2,12 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
-import '../../media_picker_widget.dart';
-import '../media_view_model.dart';
-import 'loading_widget.dart';
+import '../media_picker_widget.dart';
+import 'media_manager.dart';
+
+
 
 class MediaTile extends StatelessWidget {
   MediaTile({
@@ -15,13 +17,11 @@ class MediaTile extends StatelessWidget {
     this.onThumbnailLoad,
     this.isSelected = false,
     this.selectionIndex,
-    required this.decoration,
   }) : super(key: key);
 
   final MediaViewModel media;
-  final Function(bool isSelected, MediaViewModel media) onSelected;
+  final Function(MediaViewModel media) onSelected;
   final bool isSelected;
-  final PickerDecoration decoration;
   final ValueChanged<Uint8List?>? onThumbnailLoad;
   final int? selectionIndex;
 
@@ -38,10 +38,13 @@ class MediaTile extends StatelessWidget {
     return FutureBuilder<Uint8List?>(
         future: loadThumb,
         builder: (context, snapshot) {
-          if (snapshot.hasError) return SizedBox();
+          if (snapshot.hasError) return const SizedBox();
           if (!snapshot.hasData) {
-            return LoadingWidget(
-              decoration: decoration,
+            return const Skeleton.replace(
+                child: Bone(
+                  height: 100,
+                  width: 100,
+                )
             );
           }
           return Padding(
@@ -51,7 +54,7 @@ class MediaTile extends StatelessWidget {
                 Positioned.fill(
                   child: media.thumbnail != null
                       ? GestureDetector(
-                          onTap: () => onSelected(!isSelected, media),
+                          onTap: () => onSelected(media),
                           child: Stack(
                             children: [
                               Positioned.fill(
@@ -61,25 +64,19 @@ class MediaTile extends StatelessWidget {
                                     child: ImageFiltered(
                                       imageFilter: ImageFilter.blur(
                                         sigmaX: isSelected
-                                            ? decoration.blurStrength
+                                            ? 5
                                             : 0,
                                         sigmaY: isSelected
-                                            ? decoration.blurStrength
+                                            ? 5
                                             : 0,
                                       ),
-                                      child: AnimatedScale(
-                                        duration: _duration,
-                                        scale: isSelected
-                                            ? decoration.scaleAmount
-                                            : 1,
-                                        child: Image.memory(
-                                          media.thumbnail!,
-                                          cacheWidth: 300, // Adjust based on your needs
-                                          cacheHeight: 300,
-                                          filterQuality: FilterQuality.low,
-                                          key: ValueKey<String>(media.id),
-                                          fit: BoxFit.cover,
-                                        ),
+                                      child: Image.memory(
+                                        media.thumbnail!,
+                                        cacheWidth: 250, // Adjust based on your needs
+                                        cacheHeight: 250,
+                                        filterQuality: FilterQuality.low,
+                                        key: ValueKey<String>(media.id),
+                                        fit: BoxFit.cover,
                                       ),
                                     ),
                                   ),
@@ -94,7 +91,7 @@ class MediaTile extends StatelessWidget {
                                     child: Container(
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(12),
-                                        color: decoration.selectedColor,
+                                        color: Colors.black26,
                                       ),
 
                                     ),
@@ -102,25 +99,19 @@ class MediaTile extends StatelessWidget {
                                 ),
                               ),
                               if (media.type == MediaType.video)
-                                if (decoration.videoDurationBuilder == null)
-                                  Align(
-                                      alignment: Alignment.bottomRight,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(6),
-                                        child: Text(
-                                          _printDuration(media.videoDuration),
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 13.5,
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                                Align(
+                                    alignment: Alignment.bottomRight,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(6),
+                                      child: Text(
+                                        _printDuration(media.videoDuration),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 13.5,
+                                          fontWeight: FontWeight.w500,
                                         ),
-                                      ))
-                                else
-                                  decoration.videoDurationBuilder!(
-                                    context,
-                                    _printDuration(media.videoDuration),
-                                  ),
+                                      ),
+                                    )),
                             ],
                           ),
                         )
@@ -133,29 +124,31 @@ class MediaTile extends StatelessWidget {
                         ),
                 ),
                 if (isSelected)
-                  decoration.counterBuilder?.call(context, selectionIndex) ??
-                      Align(
-                        alignment: Alignment.topRight,
-                        child: Container(
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).primaryColor,
-                              shape: BoxShape.circle,
-                            ),
-                            padding: const EdgeInsets.all(5),
-                            child: selectionIndex == null
-                                ? Icon(
-                                    Icons.done,
-                                    size: 16,
-                                    color: Colors.white,
-                                  )
-                                : Text(
-                                    selectionIndex.toString(),
-                                    style: TextStyle(
+                      Transform.translate(
+                        offset: Offset.fromDirection(1,-4),
+                        child: Align(
+                          alignment: AlignmentDirectional.topEnd,
+                          child: Container(
+                              decoration: const BoxDecoration(
+                                color: Colors.blue,
+                                shape: BoxShape.circle,
+                              ),
+                              padding: const EdgeInsets.all(8),
+                              child: selectionIndex == null
+                                  ? const Icon(
+                                      Icons.done,
+                                      size: 16,
                                       color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  )),
+                                    )
+                                  : Text(
+                                      selectionIndex.toString(),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    )),
+                        ),
                       ),
               ],
             ),

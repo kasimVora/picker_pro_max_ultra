@@ -10,12 +10,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  image_picker: ^1.1.2
+  get: ^4.7.2
   photo_manager: ^3.6.4
   plugin_platform_interface: ^2.0.2
-  sliding_up_panel: ^2.0.0+1
-  shimmer: ^3.0.0
-
+  skeletonizer: ^1.4.3
 dev_dependencies:
   flutter_test:
     sdk: flutter

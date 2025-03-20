@@ -1,90 +1,107 @@
-library media_picker_widget;
+library picker_pro_max_ultra;
 
 import 'dart:io';
-import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:picker_pro_max_ultra/src/media_controller.dart';
+import 'package:picker_pro_max_ultra/src/media_manager.dart';
+import 'package:picker_pro_max_ultra/src/media_sheet.dart';
 
-import 'package:picker_pro_max_ultra/src/media_conversion_service.dart';
-import 'package:picker_pro_max_ultra/src/media_view_model.dart';
-import 'package:sliding_up_panel/sliding_up_panel.dart';
 
-import 'src/album_selector.dart';
-import 'src/header.dart';
-import 'src/media_list.dart';
-import 'src/widgets/loading_widget.dart';
-import 'src/widgets/no_media.dart';
 
-part 'src/enums.dart';
-part 'src/media.dart';
-part 'src/media_picker.dart';
-part 'src/picker_decoration.dart';
 
-Future<List<Media>?> openImagePicker({
-  required BuildContext context,
-  ValueChanged<List<Media>>? onPicked,
-  VoidCallback? onCancel,
-  MediaCount mediaCount = MediaCount.multiple,
-  MediaType mediaType = MediaType.all,
-}) async {
-  return await showModalBottomSheet<List<Media>>(
-    context: context,
-    isScrollControlled: true, // Allows custom height
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(
-        top: Radius.circular(20), // Rounded top corners
+
+
+enum MediaType{
+  image,video,document,unknown
+}
+
+class MediaPicker {
+  BuildContext context;
+  int  maxLimit;
+  MediaType mediaType;
+  MediaPicker({
+    required this.context,
+    this.maxLimit = 1,
+    this.mediaType = MediaType.image,
+  });
+
+  Future<List<MediaViewModel>?> showPicker() async{
+
+
+    var status = await PhotoManager.requestPermissionExtend(
+      requestOption:  PermissionRequestOption(
+        iosAccessLevel: IosAccessLevel.readWrite, // Ensure full access on iOS\
+        androidPermission: AndroidPermission(
+            type: mediaType == MediaType.video ? RequestType.video : RequestType.image,
+            mediaLocation: true), // Ensure media access on Android 13+
       ),
-    ),
-    builder: (context) {
-      return DraggableScrollableSheet(
-        expand: false, // Allows dragging
-        initialChildSize: 0.75, // Opens at 75% of screen height
-        minChildSize: 0.5, // Minimum height (50%)
-        maxChildSize: 1.0, // Maximum height (Full screen)
-        builder: (context, scrollController) {
-          return ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-            child: MediaPicker(
-              onPicked: (selectedList) {// Call callback
-                Navigator.pop(context, selectedList); // Return selectedList
-              },
-              onCancel: () {
-                onCancel?.call(); // Call cancel callback
-                Navigator.pop(context, null); // Return null if canceled
-              },
-              mediaCount: mediaCount, // Use passed mediaCount
-              mediaType: mediaType, // Use passed mediaType
-              decoration: PickerDecoration(
-                blurStrength: 0,
-                scaleAmount: 1,
-                counterBuilder: (context, index) {
-                  if (index == null) return const SizedBox();
-                  return Align(
-                    alignment: Alignment.topRight,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.green,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: const EdgeInsets.all(4),
-                      child: Text(
-                        '$index',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          );
-        },
-      );
-    },
-  );
+    );
+
+    if (kDebugMode) {
+      print("status.name");
+      print(status.name);
+    }
+
+    if (status.isAuth) {
+      if (kDebugMode) {
+        print("Full access granted");
+
+        Get.replace(MediaPickerController());
+        Get.find<MediaPickerController>().maxLimit = maxLimit;
+        Get.find<MediaPickerController>().mediaType = mediaType;
+        Get.find<MediaPickerController>().init();
+        await Future.delayed(const Duration(seconds: 1));
+        return showGridBottomSheet(context,maxLimit);
+
+
+      }
+    } else if (status == PermissionState.limited) {
+      await PhotoManager.openSetting();
+    }
+
+    return null;
+  }
+
+
+}
+extension FileTypeChecker on File {
+  MediaType _getFileType() {
+    final extension = path.split('.').last.toLowerCase();
+
+    switch (extension) {
+      case 'mp4':
+      case 'mov':
+      case 'avi':
+      case 'm4v':
+      case '3gp':
+        return MediaType.video;
+
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+        return MediaType.image;
+
+
+
+      case 'pdf':
+      case 'doc':
+      case 'docx':
+      case 'xlsx':
+      case 'ppt':
+      case 'pptx':
+      case 'txt':
+        return MediaType.document;
+
+      default:
+        return MediaType.unknown;
+    }
+  }
+
+  MediaType get fileType => _getFileType();
+  String get fileName => path.split("/").last;
 }

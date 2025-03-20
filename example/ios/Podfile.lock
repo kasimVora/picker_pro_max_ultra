@@ -1,0 +1,41 @@
+PODS:
+  - Flutter (1.0.0)
+  - image_picker_ios (0.0.1):
+    - Flutter
+  - integration_test (0.0.1):
+    - Flutter
+  - photo_manager (2.0.0):
+    - Flutter
+    - FlutterMacOS
+  - picker_pro_max_ultra (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
+  - photo_manager (from `.symlinks/plugins/photo_manager/ios`)
+  - picker_pro_max_ultra (from `.symlinks/plugins/picker_pro_max_ultra/ios`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  image_picker_ios:
+    :path: ".symlinks/plugins/image_picker_ios/ios"
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
+  photo_manager:
+    :path: ".symlinks/plugins/photo_manager/ios"
+  picker_pro_max_ultra:
+    :path: ".symlinks/plugins/picker_pro_max_ultra/ios"
+
+SPEC CHECKSUMS:
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
+  integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
+  photo_manager: ff695c7a1dd5bc379974953a2b5c0a293f7c4c8a
+  picker_pro_max_ultra: 0341587afae40e1f592a4fe71c50748783b639e5
+
+PODFILE CHECKSUM: 5df4d0e2759bd6e8ba5ffaead4470c3d4fa1c1b1
+
+COCOAPODS: 1.16.2

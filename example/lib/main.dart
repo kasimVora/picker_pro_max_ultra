@@ -28,7 +28,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<Media> mediaList = [];
+
 
   @override
   void initState() {
@@ -41,55 +41,23 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: const Text('Image Picker'),
       ),
-      body: previewList(),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () async{
-          List<Media>? selectedImages = await openImagePicker(
-            context: context,
-            onPicked: (selectedList) {
-              debugPrint("Picked ${selectedList.first.file!.path} images");
-            },
-            onCancel: () {
-              debugPrint("Picker was canceled");
-            },
-            mediaCount: MediaCount.multiple,
-            mediaType: MediaType.image,
-          );
+          var d = await  MediaPicker(
+              context: context,maxLimit: 5 ?? 1,mediaType: MediaType.video
+          ).showPicker();
 
-          if (selectedImages != null && selectedImages.isNotEmpty) {
-            setState(() {
-              mediaList = selectedImages;
-            });
+          if(d!=null){
+            for(var i in d){
+              print("i.path");
+              print(i.mediaFile!.path);
+            }
           }
         },
       ),
     );
   }
 
-  Widget previewList() {
-    return SizedBox(
-      height: 96,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        shrinkWrap: true,
-        children: List.generate(
-            mediaList.length,
-                (index) => Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SizedBox(
-                height: 80,
-                width: 80,
-                child: mediaList[index].thumbnail == null
-                    ? const SizedBox()
-                    : Image.memory(
-                  mediaList[index].thumbnail!,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            )),
-      ),
-    );
-  }
 
 }
