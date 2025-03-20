@@ -105,7 +105,7 @@ Future<List<MediaViewModel>?> showGridBottomSheet(BuildContext context, int maxL
                                 Navigator.pop(
                                     context,
                                     [controller
-                                        .selectedFile[index]]);
+                                        .mediaFilesStream[index]]);
                             }
                             },
                             isSelected: controller.selectedFile.any((t)=>t.id == controller.mediaFilesStream[index].id),

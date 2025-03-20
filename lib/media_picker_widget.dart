@@ -49,6 +49,7 @@ class MediaPicker {
 
     if (status.isAuth) {
       if (kDebugMode) {
+
         print("Full access granted");
 
         Get.replace(MediaPickerController());

@@ -39,13 +39,13 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Image Picker'),
+        title: const Text('Image Psicker'),
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () async{
           var d = await  MediaPicker(
-              context: context,maxLimit: 5 ?? 1,mediaType: MediaType.video
+              context: context,maxLimit: 5 ?? 1,mediaType: MediaType.image
           ).showPicker();
 
           if(d!=null){
