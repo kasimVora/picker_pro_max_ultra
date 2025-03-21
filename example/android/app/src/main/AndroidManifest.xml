@@ -7,7 +7,6 @@
 
 
 
-    <uses-permission android:name="android.permission.CAMERA" />
     <application
         android:label="picker_example"
         android:name="${applicationName}"

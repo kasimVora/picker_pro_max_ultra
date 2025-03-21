@@ -1,15 +1,22 @@
-# picker
+# picker_pro_max_ultra
 
-A new Flutter project.
+A powerful and customizable media picker for Flutter, built with performance and ease of use in mind. It allows users to select images and videos from their device storage with advanced features like folder selection, multi-selection, and compression.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/to/develop-plugins),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
+✅ Select images and videos from the gallery  
+✅ Folder-based media browsing  
+✅ Multi-selection support  
+✅ High-performance image and video loading  
+✅ Automatic compression for images  
+✅ Custom UI with GetX state management
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Installation
+
+Add the package to your `pubspec.yaml` file:
+
+```yaml
+dependencies:
+  picker_pro_max_ultra: latest_version
+
 
