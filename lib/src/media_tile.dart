@@ -7,8 +7,6 @@ import 'package:skeletonizer/skeletonizer.dart';
 import '../media_picker_widget.dart';
 import 'media_manager.dart';
 
-
-
 class MediaTile extends StatelessWidget {
   MediaTile({
     Key? key,
@@ -42,10 +40,9 @@ class MediaTile extends StatelessWidget {
           if (!snapshot.hasData) {
             return const Skeleton.replace(
                 child: Bone(
-                  height: 100,
-                  width: 100,
-                )
-            );
+              height: 100,
+              width: 100,
+            ));
           }
           return Padding(
             padding: const EdgeInsets.all(0.5),
@@ -63,16 +60,13 @@ class MediaTile extends StatelessWidget {
                                   child: ClipRect(
                                     child: ImageFiltered(
                                       imageFilter: ImageFilter.blur(
-                                        sigmaX: isSelected
-                                            ? 5
-                                            : 0,
-                                        sigmaY: isSelected
-                                            ? 5
-                                            : 0,
+                                        sigmaX: isSelected ? 5 : 0,
+                                        sigmaY: isSelected ? 5 : 0,
                                       ),
                                       child: Image.memory(
                                         media.thumbnail!,
-                                        cacheWidth: 250, // Adjust based on your needs
+                                        cacheWidth: 250,
+                                        // Adjust based on your needs
                                         cacheHeight: 250,
                                         filterQuality: FilterQuality.low,
                                         key: ValueKey<String>(media.id),
@@ -93,7 +87,6 @@ class MediaTile extends StatelessWidget {
                                         borderRadius: BorderRadius.circular(12),
                                         color: Colors.black26,
                                       ),
-
                                     ),
                                   ),
                                 ),
@@ -124,32 +117,32 @@ class MediaTile extends StatelessWidget {
                         ),
                 ),
                 if (isSelected)
-                      Transform.translate(
-                        offset: Offset.fromDirection(1,-4),
-                        child: Align(
-                          alignment: AlignmentDirectional.topEnd,
-                          child: Container(
-                              decoration: const BoxDecoration(
-                                color: Colors.blue,
-                                shape: BoxShape.circle,
-                              ),
-                              padding: const EdgeInsets.all(8),
-                              child: selectionIndex == null
-                                  ? const Icon(
-                                      Icons.done,
-                                      size: 16,
-                                      color: Colors.white,
-                                    )
-                                  : Text(
-                                      selectionIndex.toString(),
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    )),
-                        ),
-                      ),
+                  Transform.translate(
+                    offset: Offset.fromDirection(1, -4),
+                    child: Align(
+                      alignment: AlignmentDirectional.topEnd,
+                      child: Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.blue,
+                            shape: BoxShape.circle,
+                          ),
+                          padding: const EdgeInsets.all(8),
+                          child: selectionIndex == null
+                              ? const Icon(
+                                  Icons.done,
+                                  size: 16,
+                                  color: Colors.white,
+                                )
+                              : Text(
+                                  selectionIndex.toString(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                )),
+                    ),
+                  ),
               ],
             ),
           );

@@ -5,39 +5,32 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:picker_pro_max_ultra/src/media_controller.dart';
 import 'package:picker_pro_max_ultra/src/media_manager.dart';
 import 'package:picker_pro_max_ultra/src/media_sheet.dart';
 
-
-
-
-
-
-enum MediaType{
-  image,video,document,unknown
-}
+enum MediaType { image, video, document, unknown }
 
 class MediaPicker {
   BuildContext context;
-  int  maxLimit;
+  int maxLimit;
   MediaType mediaType;
+
   MediaPicker({
     required this.context,
     this.maxLimit = 1,
     this.mediaType = MediaType.image,
   });
 
-  Future<List<MediaViewModel>?> showPicker() async{
-
-
+  Future<List<MediaViewModel>?> showPicker() async {
     var status = await PhotoManager.requestPermissionExtend(
-      requestOption:  PermissionRequestOption(
+      requestOption: PermissionRequestOption(
         iosAccessLevel: IosAccessLevel.readWrite, // Ensure full access on iOS\
         androidPermission: AndroidPermission(
-            type: mediaType == MediaType.video ? RequestType.video : RequestType.image,
+            type: mediaType == MediaType.video
+                ? RequestType.video
+                : RequestType.image,
             mediaLocation: true), // Ensure media access on Android 13+
       ),
     );
@@ -49,7 +42,6 @@ class MediaPicker {
 
     if (status.isAuth) {
       if (kDebugMode) {
-
         print("Full access granted");
 
         Get.replace(MediaPickerController());
@@ -57,9 +49,7 @@ class MediaPicker {
         Get.find<MediaPickerController>().mediaType = mediaType;
         Get.find<MediaPickerController>().init();
         await Future.delayed(const Duration(seconds: 1));
-        return showGridBottomSheet(context,maxLimit);
-
-
+        return showGridBottomSheet(context, maxLimit);
       }
     } else if (status == PermissionState.limited) {
       await PhotoManager.openSetting();
@@ -67,9 +57,8 @@ class MediaPicker {
 
     return null;
   }
-
-
 }
+
 extension FileTypeChecker on File {
   MediaType _getFileType() {
     final extension = path.split('.').last.toLowerCase();
@@ -87,8 +76,6 @@ extension FileTypeChecker on File {
       case 'png':
         return MediaType.image;
 
-
-
       case 'pdf':
       case 'doc':
       case 'docx':
@@ -104,5 +91,6 @@ extension FileTypeChecker on File {
   }
 
   MediaType get fileType => _getFileType();
+
   String get fileName => path.split("/").last;
 }

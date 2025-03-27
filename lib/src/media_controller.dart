@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 import '../media_picker_widget.dart';
@@ -29,7 +28,8 @@ class MediaPickerController extends GetxController {
 
   // Initialize MediaPickerBloc and ask for permissions
   Future<void> init() async {
-    await fetchAlbums(mediaType == MediaType.video ? RequestType.video : RequestType.image);
+    await fetchAlbums(
+        mediaType == MediaType.video ? RequestType.video : RequestType.image);
     await fetchMediaOfAlbum(0); // load media from the first album by default
 
     scrollController.addListener(() async {
@@ -41,7 +41,6 @@ class MediaPickerController extends GetxController {
   }
 
   Future<void> fetchAlbums(RequestType type) async {
-
     var temp = await PhotoManager.getAssetPathList(
       hasAll: false,
       type: type,
@@ -133,7 +132,7 @@ class MediaPickerController extends GetxController {
     for (var asset in assets) {
       final file = await asset.file;
       if (file != null) {
-        fetchedFiles.add( await MediaViewModel.toMediaViewModel(asset));
+        fetchedFiles.add(await MediaViewModel.toMediaViewModel(asset));
       }
     }
 
