@@ -52,7 +52,7 @@ Future<List<MediaViewModel>?> showGridBottomSheet(
                               margin: const EdgeInsets.only(right: 10),
                               decoration: BoxDecoration(
                                 color: controller.tabIndexStream.value == index
-                                    ? Colors.lightBlueAccent.withOpacity(0.2)
+                                    ? Colors.lightBlueAccent.withValues(alpha: 0.2)
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.circular(10),
                               ),
