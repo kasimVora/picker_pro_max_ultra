@@ -41,20 +41,36 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: const Text('Image Psicker'),
       ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () async{
-          var d = await  MediaPicker(
-              context: context,maxLimit: 5 ?? 1,mediaType: MediaType.image
-          ).showPicker();
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        spacing: 10,
+        children: [
+          FloatingActionButton(
+            child: const Icon(Icons.filter),
+            onPressed: () async{
+              var d = await  MediaPicker(
+                  context: context,maxLimit: 5 ?? 1,mediaType: MediaType.image
+              ).showPicker();
 
-          if(d!=null){
-            for(var i in d){
-              print("i.path");
-              print(i.mediaFile!.path);
-            }
-          }
-        },
+              if(d!=null){
+                for(var i in d){
+                  print("i.path");
+                  print(i.mediaFile!.path);
+                }
+              }
+            },
+          ),
+          FloatingActionButton(
+            child: const Icon(Icons.camera),
+            onPressed: () async{
+              var d = await  MediaPicker(context: context).capturedFile();
+              if(d!=null){
+                  print("i.path");
+                  print(d.toString());
+              }
+            },
+          ),
+        ],
       ),
     );
   }

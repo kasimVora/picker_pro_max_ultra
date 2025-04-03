@@ -9,9 +9,21 @@ import 'media_controller.dart';
 import 'media_manager.dart';
 import 'media_tile.dart';
 
+
+/// Displays a modal bottom sheet for selecting media from the gallery.
+///
+/// This function uses `GetX` to retrieve the `MediaPickerController`
+/// and provides a UI to browse and select images/videos.
+///
+/// - [context] is the `BuildContext` of the calling widget.
+/// - [maxLimit] defines the maximum number of media files that can be selected.
+///
+/// Returns a `Future` that resolves to a list of selected [MediaViewModel] objects
+/// or `null` if no media is selected.
 Future<List<MediaViewModel>?> showGridBottomSheet(
     BuildContext context, int maxLimit) {
   var controller = Get.find<MediaPickerController>();
+
   return showModalBottomSheet<List<MediaViewModel>?>(
     context: context,
     shape: const RoundedRectangleBorder(
@@ -25,10 +37,11 @@ Future<List<MediaViewModel>?> showGridBottomSheet(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                /// Displays media folder tabs for switching between albums.
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Obx(
-                    () => Row(
+                        () => Row(
                       children: List.generate(
                           controller.mediaFoldersStream.length, (index) {
                         return InkWell(
@@ -39,12 +52,12 @@ Future<List<MediaViewModel>?> showGridBottomSheet(
                                 LoadStatus.loading) {
                               await controller.fetchMediaOfAlbum(index);
                             } else {
-                              print("loading");
+                              debugPrint("Loading...");
                             }
                           },
                           child: Skeletonizer(
                             enabled: controller.loadStatus.value ==
-                                    LoadStatus.loading &&
+                                LoadStatus.loading &&
                                 controller.mediaFoldersStream.isEmpty,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
@@ -66,15 +79,16 @@ Future<List<MediaViewModel>?> showGridBottomSheet(
                   ),
                 ),
                 const SizedBox(height: 20),
-                // GridView for Media Files
+
+                /// GridView for displaying media files.
                 Expanded(
                   child: Obx(
-                    () => Skeletonizer(
+                        () => Skeletonizer(
                       enabled:
-                          controller.loadStatus.value == LoadStatus.loading,
+                      controller.loadStatus.value == LoadStatus.loading,
                       child: GridView.builder(
                         gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 3,
                           mainAxisSpacing: 8.0,
                           crossAxisSpacing: 8.0,
@@ -88,18 +102,20 @@ Future<List<MediaViewModel>?> showGridBottomSheet(
                             onThumbnailLoad: (thumb) {
                               controller.mediaFilesStream[index].thumbnail =
                                   thumb;
-                              setState(() {});
+                              setState(() {}); // Update the UI when thumbnail loads.
                             },
                             onSelected: (media) async {
                               controller.onFileSelect(
                                   controller.mediaFilesStream[index]);
+
+                              // If max limit is 1, immediately return selected media.
                               if (maxLimit == 1) {
                                 Navigator.pop(context,
                                     [controller.mediaFilesStream[index]]);
                               }
                             },
                             isSelected: controller.selectedFile.any((t) =>
-                                t.id == controller.mediaFilesStream[index].id),
+                            t.id == controller.mediaFilesStream[index].id),
                             selectionIndex: controller.getSelectionIndex(
                                 controller.mediaFilesStream[index]),
                           );
@@ -108,41 +124,46 @@ Future<List<MediaViewModel>?> showGridBottomSheet(
                     ),
                   ),
                 ),
+
+                /// Bottom bar with "Cancel" and "Done" buttons.
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     InkWell(
-                        highlightColor: Colors.transparent,
-                        splashColor: Colors.transparent,
-                        onTap: () {
-                          Navigator.pop(context, null);
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text(
-                            "Cancel",
-                            style: TextStyle(color: Colors.lightBlueAccent),
-                          ),
-                        )),
+                      highlightColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      onTap: () {
+                        Navigator.pop(context, null);
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          "Cancel",
+                          style: TextStyle(color: Colors.lightBlueAccent),
+                        ),
+                      ),
+                    ),
                     InkWell(
-                        highlightColor: Colors.transparent,
-                        splashColor: Colors.transparent,
-                        onTap: () async {
-                          Navigator.pop(
-                              context,
-                              controller.selectedFile.isNotEmpty
-                                  ? controller.selectedFile
-                                  : null);
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text(
-                            "Done",
-                            style: TextStyle(color: Colors.lightBlueAccent),
-                          ),
-                        )),
+                      highlightColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      onTap: () {
+                        Navigator.pop(
+                          context,
+                          controller.selectedFile.isNotEmpty
+                              ? controller.selectedFile
+                              : null,
+                        );
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          "Done",
+                          style: TextStyle(color: Colors.lightBlueAccent),
+                        ),
+                      ),
+                    ),
                   ],
-                )
+                ),
               ],
             ),
           );
@@ -151,3 +172,4 @@ Future<List<MediaViewModel>?> showGridBottomSheet(
     },
   );
 }
+

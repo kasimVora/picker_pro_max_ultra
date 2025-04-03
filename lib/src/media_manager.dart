@@ -5,25 +5,34 @@ import 'package:photo_manager/photo_manager.dart';
 
 import '../media_picker_widget.dart';
 
-///This class will contain the necessary data for viewing list of media
+/// Represents a media file (image or video) with metadata for display in a media picker.
 class MediaViewModel {
-  ///Unique id to identify
+  /// Unique identifier for the media file.
   final String id;
 
-  ///A low resolution image to show as preview
+  /// A low-resolution image used as a preview thumbnail.
   Uint8List? thumbnail;
 
-  ///Get Thumbnail of the media file
+  /// Asynchronously fetches the thumbnail for the media file.
   final Future<Uint8List?>? thumbnailAsync;
 
-  ///Type of the media, Image/Video
+  /// Type of the media (image, video, or unknown).
   final MediaType? type;
 
+  /// The actual media file stored on the device.
   final File? mediaFile;
 
-  ///Duration of the video
+  /// Duration of the video file (if applicable).
   final Duration? videoDuration;
 
+  /// Creates a new [MediaViewModel] instance.
+  ///
+  /// - [id] is required to uniquely identify the media.
+  /// - [thumbnail] is an optional low-resolution image for quick preview.
+  /// - [thumbnailAsync] allows asynchronous fetching of the thumbnail.
+  /// - [type] specifies whether the media is an image or video.
+  /// - [mediaFile] is the actual file object.
+  /// - [videoDuration] is applicable only if the media is a video.
   MediaViewModel({
     required this.id,
     this.thumbnail,
@@ -33,70 +42,31 @@ class MediaViewModel {
     this.mediaFile,
   });
 
+  /// Generates a dummy list of media items for placeholder purposes.
+  ///
+  /// This is used to pre-populate lists with empty media items before real data is fetched.
   static List<MediaViewModel> dummyList() =>
       List.generate(20, (_) => MediaViewModel(id: "-1", mediaFile: File("")));
 
+  /// Converts an [AssetEntity] (from the `photo_manager` package) into a [MediaViewModel].
+  ///
+  /// - [entity] is the media asset retrieved from the device gallery.
+  /// - Determines the media type (image/video) based on the asset type.
+  /// - Retrieves the media file and its thumbnail asynchronously.
+  ///
+  /// Returns a [Future] containing the converted [MediaViewModel].
   static Future<MediaViewModel> toMediaViewModel(AssetEntity entity) async {
     var mediaType = MediaType.unknown;
     if (entity.type == AssetType.video) mediaType = MediaType.video;
     if (entity.type == AssetType.image) mediaType = MediaType.image;
+
     return MediaViewModel(
       id: entity.id,
-      thumbnailAsync:
-          entity.thumbnailDataWithSize(const ThumbnailSize(200, 200)),
+      thumbnailAsync: entity.thumbnailDataWithSize(const ThumbnailSize(200, 200)),
       type: mediaType,
-      thumbnail: null,
+      thumbnail: null, // Thumbnail is set asynchronously.
       mediaFile: await entity.file,
-      videoDuration:
-          entity.type == AssetType.video ? entity.videoDuration : null,
+      videoDuration: entity.type == AssetType.video ? entity.videoDuration : null,
     );
   }
-
-// static Future<List<File>> compressFiles(List<File> files) async {
-//    List<File> compressedFiles = [];
-//
-//    for (File file in files) {
-//      String extension = file.path.split('.').last.toLowerCase();
-//
-//      File? compressedFile;
-//
-//      if (['jpg', 'jpeg', 'png', 'webp'].contains(extension)) {
-//        compressedFile = await compressImage(file, extension);
-//      } else if (['mp4', 'mov', 'avi', 'mkv'].contains(extension)) {
-//        compressedFile = await compressVideo(file, extension);
-//      } else {
-//        compressedFile = file; // Keep other files unchanged
-//      }
-//
-//      if (compressedFile != null) {
-//        compressedFiles.add(compressedFile);
-//      }
-//    }
-//
-//    return compressedFiles;
-//  }
-//
-//  static Future<File> compressImage(File file, String extension) async {
-//    final dir = await getTemporaryDirectory();
-//    final outputPath = '${dir.path}/${DateTime.now().millisecondsSinceEpoch}.$extension';
-//
-//    await FFmpegKit.execute(
-//      '-i ${file.path} -q:v 5 $outputPath', // Adjust `q:v` (1-31, lower is better quality)
-//    );
-//
-//    return File(outputPath).existsSync() ? File(outputPath) : file;
-//  }
-//
-//
-//
-//  static Future<File> compressVideo(File file, String extension) async {
-//    final dir = await getTemporaryDirectory();
-//    final outputPath = '${dir.path}/${DateTime.now().millisecondsSinceEpoch}.$extension';
-//
-//    await FFmpegKit.execute(
-//      '-i ${file.path} -vcodec libx264 -crf 28 $outputPath', // Adjust `crf` (0-51, lower is better quality)
-//    );
-//
-//    return File(outputPath).existsSync() ? File(outputPath) : file;
-//  }
 }

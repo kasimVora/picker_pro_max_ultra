@@ -1,37 +1,68 @@
-library picker_pro_max_ultra;
+library;
 
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:picker_pro_max_ultra/src/camera_screen.dart';
 import 'package:picker_pro_max_ultra/src/media_controller.dart';
 import 'package:picker_pro_max_ultra/src/media_manager.dart';
 import 'package:picker_pro_max_ultra/src/media_sheet.dart';
 
-enum MediaType { image, video, document, unknown }
+/// Represents different types of media files.
+enum MediaType {
+  /// An image file (e.g., PNG, JPG).
+  image,
 
+  /// A video file (e.g., MP4, AVI).
+  video,
+
+  /// A document file (e.g., PDF, DOCX).
+  document,
+
+  /// An unknown or unsupported media type.
+  unknown,
+}
+
+
+/// A class for handling media selection and capture.
 class MediaPicker {
-  BuildContext context;
-  int maxLimit;
-  MediaType mediaType;
+  /// The build context where the media picker is used.
+  final BuildContext context;
 
+  /// The maximum number of media items that can be selected.
+  final int maxLimit;
+
+  /// The type of media that can be picked (image, video, or document).
+  final MediaType mediaType;
+
+  /// Creates a [MediaPicker] instance.
+  ///
+  /// - [context]: The [BuildContext] of the screen where the picker is used.
+  /// - [maxLimit]: The maximum number of media items to select. Defaults to `1`.
+  /// - [mediaType]: The type of media to pick. Defaults to `MediaType.image`.
   MediaPicker({
     required this.context,
     this.maxLimit = 1,
     this.mediaType = MediaType.image,
   });
 
+  /// Opens the media picker and returns a list of selected media files.
+  ///
+  /// If the user grants permission, it displays a bottom sheet grid
+  /// to select images or videos.
+  ///
+  /// Returns a list of [MediaViewModel] if media is selected, otherwise `null`.
   Future<List<MediaViewModel>?> showPicker() async {
     var status = await PhotoManager.requestPermissionExtend(
       requestOption: PermissionRequestOption(
-        iosAccessLevel: IosAccessLevel.readWrite, // Ensure full access on iOS\
+        iosAccessLevel: IosAccessLevel.readWrite, // Ensure full access on iOS
         androidPermission: AndroidPermission(
-            type: mediaType == MediaType.video
-                ? RequestType.video
-                : RequestType.image,
-            mediaLocation: true), // Ensure media access on Android 13+
+          type: mediaType == MediaType.video ? RequestType.video : RequestType.image,
+          mediaLocation: true, // Ensure media access on Android 13+
+        ),
       ),
     );
 
@@ -49,7 +80,9 @@ class MediaPicker {
         Get.find<MediaPickerController>().mediaType = mediaType;
         Get.find<MediaPickerController>().init();
         await Future.delayed(const Duration(seconds: 1));
-        return showGridBottomSheet(context, maxLimit);
+        if(context.mounted) {
+          return showGridBottomSheet(context, maxLimit);
+        }
       }
     } else if (status == PermissionState.limited) {
       await PhotoManager.openSetting();
@@ -57,9 +90,30 @@ class MediaPicker {
 
     return null;
   }
+
+  /// Opens the camera screen and returns the captured file path.
+  ///
+  /// Navigates to the [CameraScreen] and waits for a file to be captured.
+  /// Returns the file path if successful, otherwise returns `null`.
+  Future<String?> capturedFile() async {
+    String? capturedPath;
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CameraScreen()),
+    ).then((path) {
+      capturedPath = path;
+    }).catchError((e) {
+      capturedPath = null;
+    });
+
+    return capturedPath;
+  }
 }
 
+/// An extension for determining the type of a file.
 extension FileTypeChecker on File {
+  /// Determines the media type of the file based on its extension.
   MediaType _getFileType() {
     final extension = path.split('.').last.toLowerCase();
 
@@ -90,7 +144,10 @@ extension FileTypeChecker on File {
     }
   }
 
+  /// Returns the detected [MediaType] of the file.
   MediaType get fileType => _getFileType();
 
+  /// Returns the name of the file (without its path).
   String get fileName => path.split("/").last;
 }
+
