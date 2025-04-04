@@ -26,7 +26,6 @@ enum MediaType {
   unknown,
 }
 
-
 /// A class for handling media selection and capture.
 class MediaPicker {
   /// The build context where the media picker is used.
@@ -60,7 +59,9 @@ class MediaPicker {
       requestOption: PermissionRequestOption(
         iosAccessLevel: IosAccessLevel.readWrite, // Ensure full access on iOS
         androidPermission: AndroidPermission(
-          type: mediaType == MediaType.video ? RequestType.video : RequestType.image,
+          type: mediaType == MediaType.video
+              ? RequestType.video
+              : RequestType.image,
           mediaLocation: true, // Ensure media access on Android 13+
         ),
       ),
@@ -80,7 +81,7 @@ class MediaPicker {
         Get.find<MediaPickerController>().mediaType = mediaType;
         Get.find<MediaPickerController>().init();
         await Future.delayed(const Duration(seconds: 1));
-        if(context.mounted) {
+        if (context.mounted) {
           return showGridBottomSheet(context, maxLimit);
         }
       }
@@ -150,4 +151,3 @@ extension FileTypeChecker on File {
   /// Returns the name of the file (without its path).
   String get fileName => path.split("/").last;
 }
-

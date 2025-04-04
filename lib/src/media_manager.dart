@@ -62,11 +62,14 @@ class MediaViewModel {
 
     return MediaViewModel(
       id: entity.id,
-      thumbnailAsync: entity.thumbnailDataWithSize(const ThumbnailSize(200, 200)),
+      thumbnailAsync:
+          entity.thumbnailDataWithSize(const ThumbnailSize(200, 200)),
       type: mediaType,
-      thumbnail: null, // Thumbnail is set asynchronously.
+      thumbnail: null,
+      // Thumbnail is set asynchronously.
       mediaFile: await entity.file,
-      videoDuration: entity.type == AssetType.video ? entity.videoDuration : null,
+      videoDuration:
+          entity.type == AssetType.video ? entity.videoDuration : null,
     );
   }
 }

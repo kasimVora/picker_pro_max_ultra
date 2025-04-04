@@ -1,3 +1,6 @@
+## 1.0.6
+- bug fix
+
 ## 1.0.5
 - Added zoom controls in camera
 

@@ -75,75 +75,76 @@ class MediaTile extends StatelessWidget {
               Positioned.fill(
                 child: media.thumbnail != null
                     ? GestureDetector(
-                  onTap: () => onSelected(media),
-                  child: Stack(
-                    children: [
-                      // Display the media thumbnail with an optional blur effect when selected.
-                      Positioned.fill(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: ClipRect(
-                            child: ImageFiltered(
-                              imageFilter: ImageFilter.blur(
-                                sigmaX: isSelected ? 5 : 0,
-                                sigmaY: isSelected ? 5 : 0,
-                              ),
-                              child: Image.memory(
-                                media.thumbnail!,
-                                cacheWidth: 250, // Adjust as needed
-                                cacheHeight: 250,
-                                filterQuality: FilterQuality.low,
-                                key: ValueKey<String>(media.id),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // Overlay when the tile is selected.
-                      Positioned.fill(
-                        child: AnimatedOpacity(
-                          opacity: isSelected ? 1 : 0,
-                          curve: Curves.easeOut,
-                          duration: _duration,
-                          child: ClipRect(
-                            child: Container(
-                              decoration: BoxDecoration(
+                        onTap: () => onSelected(media),
+                        child: Stack(
+                          children: [
+                            // Display the media thumbnail with an optional blur effect when selected.
+                            Positioned.fill(
+                              child: ClipRRect(
                                 borderRadius: BorderRadius.circular(12),
-                                color: Colors.black26,
+                                child: ClipRect(
+                                  child: ImageFiltered(
+                                    imageFilter: ImageFilter.blur(
+                                      sigmaX: isSelected ? 5 : 0,
+                                      sigmaY: isSelected ? 5 : 0,
+                                    ),
+                                    child: Image.memory(
+                                      media.thumbnail!,
+                                      cacheWidth: 250,
+                                      // Adjust as needed
+                                      cacheHeight: 250,
+                                      filterQuality: FilterQuality.low,
+                                      key: ValueKey<String>(media.id),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
+
+                            // Overlay when the tile is selected.
+                            Positioned.fill(
+                              child: AnimatedOpacity(
+                                opacity: isSelected ? 1 : 0,
+                                curve: Curves.easeOut,
+                                duration: _duration,
+                                child: ClipRect(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      color: Colors.black26,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            // Video duration label (if media is a video).
+                            if (media.type == MediaType.video)
+                              Align(
+                                alignment: Alignment.bottomRight,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(6),
+                                  child: Text(
+                                    _formatDuration(media.videoDuration),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 13.5,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      )
+                    : Center(
+                        child: Icon(
+                          Icons.error_outline,
+                          color: Colors.grey.shade400,
+                          size: 40,
                         ),
                       ),
-
-                      // Video duration label (if media is a video).
-                      if (media.type == MediaType.video)
-                        Align(
-                          alignment: Alignment.bottomRight,
-                          child: Padding(
-                            padding: const EdgeInsets.all(6),
-                            child: Text(
-                              _formatDuration(media.videoDuration),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 13.5,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                )
-                    : Center(
-                  child: Icon(
-                    Icons.error_outline,
-                    color: Colors.grey.shade400,
-                    size: 40,
-                  ),
-                ),
               ),
 
               // Selection indicator (checkmark or selection index).
@@ -160,18 +161,18 @@ class MediaTile extends StatelessWidget {
                       padding: const EdgeInsets.all(8),
                       child: selectionIndex == null
                           ? const Icon(
-                        Icons.done,
-                        size: 16,
-                        color: Colors.white,
-                      )
+                              Icons.done,
+                              size: 16,
+                              color: Colors.white,
+                            )
                           : Text(
-                        selectionIndex.toString(),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                              selectionIndex.toString(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                     ),
                   ),
                 ),

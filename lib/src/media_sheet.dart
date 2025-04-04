@@ -9,7 +9,6 @@ import 'media_controller.dart';
 import 'media_manager.dart';
 import 'media_tile.dart';
 
-
 /// Displays a modal bottom sheet for selecting media from the gallery.
 ///
 /// This function uses `GetX` to retrieve the `MediaPickerController`
@@ -41,7 +40,7 @@ Future<List<MediaViewModel>?> showGridBottomSheet(
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Obx(
-                        () => Row(
+                    () => Row(
                       children: List.generate(
                           controller.mediaFoldersStream.length, (index) {
                         return InkWell(
@@ -57,7 +56,7 @@ Future<List<MediaViewModel>?> showGridBottomSheet(
                           },
                           child: Skeletonizer(
                             enabled: controller.loadStatus.value ==
-                                LoadStatus.loading &&
+                                    LoadStatus.loading &&
                                 controller.mediaFoldersStream.isEmpty,
                             child: Container(
                               padding: const EdgeInsets.symmetric(
@@ -65,7 +64,8 @@ Future<List<MediaViewModel>?> showGridBottomSheet(
                               margin: const EdgeInsets.only(right: 10),
                               decoration: BoxDecoration(
                                 color: controller.tabIndexStream.value == index
-                                    ? Colors.lightBlueAccent.withValues(alpha: 0.2)
+                                    ? Colors.lightBlueAccent
+                                        .withValues(alpha: 0.2)
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -83,12 +83,12 @@ Future<List<MediaViewModel>?> showGridBottomSheet(
                 /// GridView for displaying media files.
                 Expanded(
                   child: Obx(
-                        () => Skeletonizer(
+                    () => Skeletonizer(
                       enabled:
-                      controller.loadStatus.value == LoadStatus.loading,
+                          controller.loadStatus.value == LoadStatus.loading,
                       child: GridView.builder(
                         gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
+                            const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 3,
                           mainAxisSpacing: 8.0,
                           crossAxisSpacing: 8.0,
@@ -102,7 +102,8 @@ Future<List<MediaViewModel>?> showGridBottomSheet(
                             onThumbnailLoad: (thumb) {
                               controller.mediaFilesStream[index].thumbnail =
                                   thumb;
-                              setState(() {}); // Update the UI when thumbnail loads.
+                              setState(
+                                  () {}); // Update the UI when thumbnail loads.
                             },
                             onSelected: (media) async {
                               controller.onFileSelect(
@@ -115,7 +116,7 @@ Future<List<MediaViewModel>?> showGridBottomSheet(
                               }
                             },
                             isSelected: controller.selectedFile.any((t) =>
-                            t.id == controller.mediaFilesStream[index].id),
+                                t.id == controller.mediaFilesStream[index].id),
                             selectionIndex: controller.getSelectionIndex(
                                 controller.mediaFilesStream[index]),
                           );
@@ -172,4 +173,3 @@ Future<List<MediaViewModel>?> showGridBottomSheet(
     },
   );
 }
-

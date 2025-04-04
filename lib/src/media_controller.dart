@@ -75,7 +75,8 @@ class MediaPickerController extends GetxController {
     for (int i = 0; i < temp.length; i++) {
       var count = await temp[i].assetCountAsync;
       if (kDebugMode) {
-        print("--- count $count -- name ${temp[i].type.toString()} ${temp[i].name.toString()}");
+        print(
+            "--- count $count -- name ${temp[i].type.toString()} ${temp[i].name.toString()}");
       }
       if (count != 0) {
         mediaFoldersStream.add(temp[i]);
@@ -100,9 +101,8 @@ class MediaPickerController extends GetxController {
     tabIndexStream.value = index; // Update tab index for view refresh.
 
     if (index < mediaFoldersStream.length) {
-      loadStatus.value = currentPage.value == 0
-          ? LoadStatus.loading
-          : LoadStatus.loadingMore;
+      loadStatus.value =
+          currentPage.value == 0 ? LoadStatus.loading : LoadStatus.loadingMore;
 
       final fetchedMedia = await _mediaFromFolder(
         mediaFoldersStream[index],
@@ -150,11 +150,11 @@ class MediaPickerController extends GetxController {
   ///
   /// Returns a list of fetched [MediaViewModel] objects.
   Future<List<MediaViewModel>> _mediaFromFolder(
-      AssetPathEntity assetPathEntity,
-      int index, {
-        required int page,
-        required int limit,
-      }) async {
+    AssetPathEntity assetPathEntity,
+    int index, {
+    required int page,
+    required int limit,
+  }) async {
     List<MediaViewModel> fetchedFiles = [];
     final start = page * limit;
     final end = start + limit;
