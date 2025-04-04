@@ -19,8 +19,8 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
    CameraController? controller;
   int camMode = 0;
   double scale = 0;
-   double min = 0;
-  double max = 0;
+   double minZoomLevel = 0;
+  double maxZoomLevel = 0;
   int flashMode = 0,timer = 0;
   int cameIndex = 0;
    bool isRecording = false,captured = false;
@@ -43,73 +43,118 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: controller!= null ? captured ? Container(
-          color: Colors.black,
-        ) : Stack(
-          alignment: Alignment.topRight,
-          children: [
-            camera(),
-            select(context),
-            Positioned(
-              right: 0,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const SizedBox(height: 50,),
-                  flashButton(context),
-                  const SizedBox(height: 20,),
-                  toggleCamera(context),
-                ],
+    return Scaffold(
+      body: controller!= null ? captured ? Container(
+        color: Colors.black,
+      ) : Stack(
+        alignment: Alignment.topRight,
+        children: [
+          camera(),
+          Positioned.directional(
+            end: 10,
+            textDirection: Directionality.of(context),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const SizedBox(height: 50,),
+                flashButton(context),
+                const SizedBox(height: 20,),
+                toggleCamera(context),
+              ],
+            ),
+          ),
+
+          cameraButtons(context),
+
+          Visibility(
+            visible: filePath!=null,
+            child: Positioned.directional(
+              end: 20,
+              bottom: 20,
+              textDirection: Directionality.of(context),
+              child: SafeArea(
+                child: CircleAvatar(
+                    backgroundColor: Colors.black,
+                    radius: 20,
+                    child: InkWell(
+                        highlightColor: Colors.transparent,
+                        splashColor: Colors.transparent,
+                        onTap: () => Navigator.of(context).pop(filePath),
+                        child: Icon(Icons.check,
+                          color: Colors.white,
+                          size: 23,)
+                    ),
+                  ),
               ),
             ),
-            cameraButtons(context),
-          ],
-        ) : const SizedBox(),
-      ),
+          ),
+          Visibility(
+            visible: filePath!=null,
+            child: Positioned.directional(
+              start: 20,
+              bottom: 20,
+              textDirection: Directionality.of(context),
+              child: SafeArea(
+                child: CircleAvatar(
+                  backgroundColor: Colors.black,
+                  radius: 20,
+                  child: InkWell(
+                      highlightColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      onTap: () => clear(),
+                      child: Icon(Icons.close,
+                        color: Colors.white,
+                        size: 23,)
+                  ),
+                ),
+              ),
+            ),
+          )
+        ],
+      ) : const SizedBox(),
     );
   }
 
-  zoomControl(BuildContext context) {
-    return SizedBox(
-      height: 50,
-      child: ListView.separated(
-        itemCount: max.toInt(),
-        scrollDirection: Axis.horizontal,
-        shrinkWrap: true,
-        itemBuilder: (_, index) {
-          return GestureDetector(
-            onTap: () {
-             setZoom( index + 1);
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.white, width: 1),
-                shape: BoxShape.circle,
-              ),
-              child: CircleAvatar(
-                  backgroundColor: Colors.transparent,
-                  child: Text(
-                    "${index + 1}x",
-                    style: TextStyle(
-                        color: index + 1 == scale
-                            ? Colors.yellow
-                            : Colors.white,
-                        fontWeight: FontWeight.normal,
-                        fontSize: 10),
-                  )),
-            ),
-          );
-        },
-        separatorBuilder: (BuildContext context, int index) {
-          return const SizedBox(
-            width: 10,
-          );
-        },
-      ),
-    );
-  }
+   zoomControl(BuildContext context) {
+     // Calculate the middle value between min and max zoom levels
+     double middleZoom = (maxZoomLevel + minZoomLevel) / 2;
+
+     // List to hold the zoom values: min, middle, max
+     List<int> zoomValues = [minZoomLevel.toInt(), middleZoom.toInt(), maxZoomLevel.toInt()];
+
+     return SingleChildScrollView(
+       primary: false,
+       scrollDirection: Axis.horizontal,
+       child: Row(
+         spacing: 10,
+         children: zoomValues.map((zoomValue) {
+           return GestureDetector(
+             onTap: () {
+               setZoom(zoomValue);
+             },
+             child: Container(
+               decoration: BoxDecoration(
+                 border: Border.all(color: Colors.white, width: 1),
+                 shape: BoxShape.circle,
+               ),
+               child: CircleAvatar(
+                 backgroundColor: Colors.transparent,
+                 child: Text(
+                   "${zoomValue}x",
+                   style: TextStyle(
+                     color: zoomValue == scale ? Colors.black : Colors.white,
+                     fontWeight: FontWeight.normal,
+                     fontSize: 10,
+                   ),
+                 ),
+               ),
+             ),
+           );
+         }).toList(),
+       ),
+     );
+   }
+
 
   camera() {
     return SizedBox(
@@ -135,44 +180,20 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
     );
   }
 
-  select(BuildContext context) {
-    return Positioned(
-        top: 0,
-        right: 5,
-        child: Visibility(
-          visible: filePath!=null,
-          child: Row(
-            children: [
 
-              TextButton(
-                onPressed: () {
-                  clear();
-                  //Navigator.of(context).pop(null);
-                },
-                child: Text("Cancel"),),
-
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(filePath);
-                },
-                child: Text("Done"),),
-            ],
-          ),
-        ));
-  }
 
   cameraButtons(BuildContext context) {
     return Positioned(
       bottom: 0,
       child: SafeArea(
         child: Center(
-          widthFactor:3.5,
+          widthFactor:2.25,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-               // zoomControl(context),
+               zoomControl(context),
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Row(
@@ -187,11 +208,13 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
                 const SizedBox(
                   height: 10,
                 ),
+
                 camMode != 0
                     ? isRecording
                     ? stopVideoButton()
                     : startVideoButton(context: context,)
                     : imageButton(),
+
 
               ],
             ),
@@ -245,7 +268,7 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
       child: CircleAvatar(
           backgroundColor: Colors.black,
           radius: 20,
-          child: Icon(CupertinoIcons.switch_camera,color: Colors.white,size: 16,)
+          child: Icon(Icons.cameraswitch_outlined,color: Colors.white,size: 20,)
       ),
     );
   }
@@ -346,79 +369,82 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
     );
   }
 
+  void startCamera(index) async {
+     if(filePath == null){
+       CameraController cameraController = CameraController(cameraDes[index], ResolutionPreset.ultraHigh);
+       await cameraController.initialize().then((value) async {
+         double max = await cameraController.getMaxZoomLevel();
 
+         double min = await cameraController.getMinZoomLevel();
+         await cameraController.setFlashMode(FlashMode.off);
 
-   startCamera(index) async {
-     CameraController cameraController =
-     CameraController(cameraDes[index], ResolutionPreset.ultraHigh);
-     await cameraController.initialize().then((value) async {
-       double max = await cameraController.getMaxZoomLevel();
-       double min = await cameraController.getMinZoomLevel();
-       await cameraController.setFlashMode(FlashMode.off);
+         controller = cameraController;
+         scale = min;
+         cameIndex = index;
+         minZoomLevel = min;
+         maxZoomLevel =  max;
 
-           controller = cameraController;
-           scale = min;
-           cameIndex = index;
-           min = min;
-           max =  max;
+         setState(() {});
 
-       setState(() {});
-
-     }).catchError((Object e) {
-       if (e is CameraException) {
-         switch (e.code) {
-           case 'CameraAccessDenied':
-           // e.description
-             break;
-           default:
-           //  error: "Some thing went wrong",
-             break;
+       }).catchError((Object e) {
+         if (e is CameraException) {
+           switch (e.code) {
+             case 'CameraAccessDenied':
+             // e.description
+               break;
+             default:
+             //  error: "Some thing went wrong",
+               break;
+           }
          }
-       }
-     });
+       });
+     }
    }
 
-   toggleFlash() {
+  void toggleFlash() {
+     if(filePath == null){
 
-         flashMode = flashMode == 0
-             ? 1
-             : flashMode == 1
-             ? 2
-             : 0;
+       flashMode = flashMode == 0
+           ? 1
+           : flashMode == 1
+           ? 2
+           : 0;
 
 
-     if (flashMode == 0) {
-       controller?.setFlashMode(FlashMode.always);
-     } else if (flashMode == 1) {
-       controller?.setFlashMode(FlashMode.auto);
-     } else {
-       controller?.setFlashMode(FlashMode.off);
+       if (flashMode == 0) {
+         controller?.setFlashMode(FlashMode.always);
+       } else if (flashMode == 1) {
+         controller?.setFlashMode(FlashMode.auto);
+       } else {
+         controller?.setFlashMode(FlashMode.off);
+       }
+       setState(() {});
      }
-         setState(() {});
    }
 
-   takePhoto() async {
+   void takePhoto() async {
+    if(filePath == null){
+      captured = true;
+      setState(() {});
 
-     captured = true;
-     setState(() {});
+      await Future.delayed(const Duration(milliseconds: 10),(){});
+      captured = false;
+      setState(() {});
 
-     await Future.delayed(const Duration(milliseconds: 10),(){});
-     captured = false;
-     setState(() {});
+      try {
+        var image = await controller?.takePicture();
+        await controller?.pausePreview();
 
-     try {
-       var image = await controller?.takePicture();
-       await controller?.pausePreview();
+        if(image!=null){
 
-       if(image!=null){
+          filePath = image.path;
+          setState(() {});
+        }
 
-         filePath = image.path;
-         setState(() {});
-       }
-
-     } catch (e) {
-       // e.toString()
-     }
+      } catch (e) {
+        // e.toString()
+      }
+    }
    }
 
    void recordVideo() async {
@@ -455,10 +481,12 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
       });
    }
 
-   switchMode(mode) {
-     setState(() {
-       camMode =  mode;
-     });
+   void switchMode(mode) {
+    if(filePath == null){
+      setState(() {
+        camMode =  mode;
+      });
+    }
    }
 
    @override
@@ -476,10 +504,12 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
    }
 
    void setZoom(int level) {
-     setState(() {
-       controller?.setZoomLevel(level.toDouble());
-       scale = level.toDouble();
-     });
+     if(filePath == null){
+       setState(() {
+         controller?.setZoomLevel(level.toDouble());
+         scale = level.toDouble();
+       });
+     }
    }
 
 

@@ -1,2 +1,18 @@
+## 1.0.5
+- Added zoom controls in camera
+
 ## 1.0.4
 - Added capture image from camera
+
+## 1.0.3
+- bug fix
+
+## 1.0.2
+- bug fix
+
+## 1.0.1
+- Initial release of `picker_pro_max_ultra`.
+- Features:
+    - Image and video picking from gallery.
+    - Multi-image selection support.
+    - Platform compatibility for Android and iOS
