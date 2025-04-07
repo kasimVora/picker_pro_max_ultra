@@ -96,6 +96,7 @@ For a full example, check out the [example folder](https://github.com/kasimVora/
   <img src="https://github.com/kasimVora/picker_pro_max_ultra/blob/MAIN/screenshots/OCPhoto.765690179.842269.jpeg" width="30%" alt="Screenshot 1" />
   <img src="https://github.com/kasimVora/picker_pro_max_ultra/blob/MAIN/screenshots/OCPhoto.765690179.63493.jpeg" width="30%" alt="Screenshot 2" />
   <img src="https://github.com/kasimVora/picker_pro_max_ultra/blob/MAIN/screenshots/OCPhoto.765690180.079217.jpeg" width="30%" alt="Screenshot 3" />
+  <img src="https://github.com/kasimVora/picker_pro_max_ultra/blob/video_capture/screenshots/OCPhoto.765691778.497244.jpeg" width="30%" alt="Screenshot 3" />
 </p>
 
 ---
