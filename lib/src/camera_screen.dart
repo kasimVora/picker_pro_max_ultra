@@ -178,11 +178,7 @@ class _CameraScreenState extends State<CameraScreen>
         child: SizedBox(
           width: controller!.value.previewSize!.height,
           height: controller!.value.previewSize!.width,
-          child: Transform(
-            alignment: Alignment.center,
-            transform: rotation,
-            child: CameraPreview(controller!),
-          ),
+          child: CameraPreview(controller!),
         ),
       ),
     );
@@ -245,7 +241,7 @@ class _CameraScreenState extends State<CameraScreen>
   typeChip(int mode) {
     return InkWell(
       onTap: () {
-        switchMode(camMode == 0 ? 1 : 0);
+        switchMode(mode);
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -469,6 +465,7 @@ class _CameraScreenState extends State<CameraScreen>
 
   void recordVideo() async {
     if (isRecording) {
+      await controller?.pausePreview();
       var cFile = await controller?.stopVideoRecording();
       isRecording = false;
       if (cFile != null) {

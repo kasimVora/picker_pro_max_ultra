@@ -64,7 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 var d = await MediaPicker(
                                       context: context,
                                       maxLimit: 5 ?? 1,
-                                      mediaType: MediaType.image)
+                                      mediaType: MediaType.video)
                                   .showPicker();
 
                 if (d != null) {
@@ -89,7 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: () async {
               var d = await MediaPicker(
                 context: context,
-              ).capturedFile(allowRecord: false);
+              ).capturedFile(allowRecord: true);
               if (d != null) {
                 print("i.path");
                 print(d.toString());
