@@ -1,28 +1,114 @@
-# picker_pro_max_ultra
+# 📦 picker_pro_max_ultra
 
-A powerful and customizable media picker for Flutter, built with performance and ease of use in mind. It allows users to select images and videos from their device storage with advanced features like folder selection, multi-selection and also support capture image from camera
+[![pub package](https://img.shields.io/pub/v/picker_pro_max_ultra.svg)](https://pub.dev/packages/picker_pro_max_ultra)
 
-## Features
+A powerful and customizable media picker for Flutter, built with performance and ease of use in mind.
 
-✅ Select images and videos from the gallery  
-✅ Capture image from camera  
-✅ Folder-based media browsing  
-✅ Multi-selection support  
-✅ High-performance image and video loading  
-✅ Automatic compression for images  
-✅ Custom UI with GetX state management
+Easily pick images and videos from device storage or capture new ones with camera support. Comes with advanced features like folder browsing, multi-selection, capture image from camera, and custom UI using GetX.
 
-## Installation
+---
 
-Add the package to your `pubspec.yaml` file:
+|             | Android | iOS     | Web  | Windows | macOS | Linux |
+|-------------|---------|---------|------|---------|-------|-------|
+| **Support** | SDK 21+ | iOS 12+ | ❌   | ❌      | ❌    | ❌    |
 
-## 📸 Screenshots
+---
 
-<img src="https://github.com/kasimVora/picker_pro_max_ultra/blob/MAIN/screenshots/OCPhoto.765690179.842269.jpeg" width="300"  alt=""/>
-<img src="https://github.com/kasimVora/picker_pro_max_ultra/blob/MAIN/screenshots/OCPhoto.765690179.63493.jpeg" width="300"  alt=""/>
-<img src="https://github.com/kasimVora/picker_pro_max_ultra/blob/MAIN/screenshots/OCPhoto.765690180.079217.jpeg" width="300"  alt=""/>
+## ✨ Features
 
+- 📸 Capture image using the camera
+- 🖼 Pick images & videos from the gallery
+- 📂 Folder-based media browsing
+- 🔁 Multi-selection support
+- ⚡ Fast loading with optimized performance
+- 📉 Automatic image compression
+- 🎨 Customizable UI with GetX
+
+---
+
+## 🛠 Installation
+
+Add this to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  picker_pro_max_ultra: latest_version
+  picker_pro_max_ultra: ^<latest_version>
+```
+
+Replace `<latest_version>` with the latest version on [pub.dev](https://pub.dev/packages/picker_pro_max_ultra).
+
+---
+
+## ⚙️ Setup
+
+### ✅ Android
+
+Add the following permissions to your `AndroidManifest.xml` (`android/app/src/main/AndroidManifest.xml`):
+
+```xml
+<!-- Media Access -->
+<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+<uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+<!-- Camera Access -->
+<uses-permission android:name="android.permission.CAMERA" />
+```
+
+### 🍏 iOS
+
+Add the following entries to your `ios/Runner/Info.plist`:
+
+```xml
+<key>NSPhotoLibraryUsageDescription</key>
+<string>This app requires access to your photo library.</string>
+
+<key>NSCameraUsageDescription</key>
+<string>This app requires access to the camera.</string>
+
+<key>NSMicrophoneUsageDescription</key>
+<string>This app requires access to the microphone.</string>
+```
+
+---
+
+## 🧪 Example Usage
+
+```dart
+final picker = PickerProMaxUltra();
+
+// Pick media
+final List<MediaFile> files = await picker.pickMedia(
+  allowMultiple: true,
+  mediaType: MediaType.image,
+);
+
+// Capture from camera
+final MediaFile? captured = await picker.captureImage();
+```
+
+For a full example, check out the [example folder](https://github.com/kasimVora/picker_pro_max_ultra/tree/MAIN/example).
+
+---
+
+## 📸 Screenshots
+
+<p float="left">
+  <img src="https://github.com/kasimVora/picker_pro_max_ultra/blob/MAIN/screenshots/OCPhoto.765690179.842269.jpeg" width="30%" alt="Screenshot 1" />
+  <img src="https://github.com/kasimVora/picker_pro_max_ultra/blob/MAIN/screenshots/OCPhoto.765690179.63493.jpeg" width="30%" alt="Screenshot 2" />
+  <img src="https://github.com/kasimVora/picker_pro_max_ultra/blob/MAIN/screenshots/OCPhoto.765690180.079217.jpeg" width="30%" alt="Screenshot 3" />
+</p>
+
+---
+
+## 🧩 Contributions
+
+Contributions, issues, and feature requests are welcome!  
+Feel free to check [issues page](https://github.com/kasimVora/picker_pro_max_ultra/issues).
+
+---
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).

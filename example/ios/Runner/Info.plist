@@ -49,7 +49,6 @@
     <string>Your Description.</string>
     <key>NSCameraUsageDescription</key>
     	<string>camera</string>
-
     		<key>NSMicrophoneUsageDescription</key>
         	<string>microphone</string>
 </dict>
