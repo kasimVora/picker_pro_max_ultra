@@ -1,9 +1,23 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:picker_pro_max_ultra/media_picker_widget.dart';
 
 void main() {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    debugPrint('Flutter Error: ${details.exception}');
+  };
+
+  runZonedGuarded(() {
+    runApp(MyApp());
+  }, (error, stack) {
+    debugPrint('Dart Error: $error');
+  });
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -46,17 +60,27 @@ class _MyHomePageState extends State<MyHomePage> {
           FloatingActionButton(
             child: const Icon(Icons.filter),
             onPressed: () async {
-              var d = await MediaPicker(
-                      context: context,
-                      maxLimit: 5 ?? 1,
-                      mediaType: MediaType.image)
-                  .showPicker();
+              try {
+                var d = await MediaPicker(
+                                      context: context,
+                                      maxLimit: 5 ?? 1,
+                                      mediaType: MediaType.image)
+                                  .showPicker();
 
-              if (d != null) {
-                for (var i in d) {
-                  print("i.path");
-                  print(i.mediaFile!.path);
-                }
+                if (d != null) {
+                                for (var i in d) {
+                                  print("i.path");
+                                  print(i.mediaFile!.path);
+                                }
+                              }
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(e.toString()),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+
               }
             },
           ),

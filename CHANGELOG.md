@@ -1,3 +1,6 @@
+## 1.0.8
+- release mode not working bug fixed
+
 ## 1.0.7
 - allow video recording from camera
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
@@ -18,7 +19,8 @@ class CameraScreen extends StatefulWidget {
   State<CameraScreen> createState() => _CameraScreenState();
 }
 
-class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver {
+class _CameraScreenState extends State<CameraScreen>
+    with WidgetsBindingObserver {
   List<CameraDescription> cameraDes = [];
   CameraController? controller;
   int camMode = 0;
@@ -27,10 +29,11 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
   double maxZoomLevel = 0;
   int flashMode = 0, timer = 0;
   int cameIndex = 0;
-  bool isRecording = false, captured = false ;
+  bool isRecording = false, captured = false;
   StreamController<int>? seconds;
   Timer? time;
   String? filePath;
+  Matrix4 rotation = Matrix4.identity();
 
   @override
   void initState() {
@@ -169,10 +172,18 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
   }
 
   camera() {
-    return SizedBox(
-      height: MediaQuery.sizeOf(context).height,
-      child: CameraPreview(
-        controller!,
+    return SizedBox.expand(
+      child: FittedBox(
+        fit: BoxFit.cover,
+        child: SizedBox(
+          width: controller!.value.previewSize!.height,
+          height: controller!.value.previewSize!.width,
+          child: Transform(
+            alignment: Alignment.center,
+            transform: rotation,
+            child: CameraPreview(controller!),
+          ),
+        ),
       ),
     );
   }
@@ -196,7 +207,7 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
       bottom: 0,
       child: SafeArea(
         child: Center(
-          widthFactor: widget.allowRecord ?  2 : 2.4,
+          widthFactor: widget.allowRecord ? 2 : 2.4,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -209,8 +220,7 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
                     spacing: 10,
                     children: [
                       typeChip(0),
-                      if(widget.allowRecord)
-                      typeChip(1),
+                      if (widget.allowRecord) typeChip(1),
                     ],
                   ),
                 ),
@@ -387,13 +397,19 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
         double min = await cameraController.getMinZoomLevel();
         await cameraController.setFlashMode(FlashMode.off);
 
-        controller = cameraController;
-        scale = min;
-        cameIndex = index;
-        minZoomLevel = min;
-        maxZoomLevel = max;
-
-        setState(() {});
+        setState(() {
+          controller = cameraController;
+          scale = min;
+          cameIndex = index;
+          minZoomLevel = min;
+          maxZoomLevel = max;
+          if (controller!.description.lensDirection ==
+              CameraLensDirection.front) {
+            rotation = Matrix4.identity()..rotateY(math.pi);
+          } else {
+            rotation = Matrix4.identity();
+          }
+        });
       }).catchError((Object e) {
         if (e is CameraException) {
           switch (e.code) {
@@ -457,7 +473,6 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
       isRecording = false;
       if (cFile != null) {
         filePath = cFile.path;
-        print("file path is${filePath}");
       }
       setState(() {});
     } else {
@@ -477,13 +492,14 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
     });
   }
 
- void stopTimer() async {
+  void stopTimer() async {
     time?.cancel();
     setState(() {
       timer = 0;
       time = null;
     });
   }
+
   void startTimer() {
     time = Timer.periodic(const Duration(seconds: 1), (timerInstance) {
       setState(() {
@@ -491,7 +507,6 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
       });
     });
   }
-
 
   void switchMode(mode) {
     if (filePath == null) {

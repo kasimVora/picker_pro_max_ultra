@@ -4,10 +4,8 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:picker_pro_max_ultra/src/camera_screen.dart';
-import 'package:picker_pro_max_ultra/src/media_controller.dart';
 import 'package:picker_pro_max_ultra/src/media_manager.dart';
 import 'package:picker_pro_max_ultra/src/media_sheet.dart';
 
@@ -75,15 +73,10 @@ class MediaPicker {
     if (status.isAuth) {
       if (kDebugMode) {
         print("Full access granted");
-
-        Get.replace(MediaPickerController());
-        Get.find<MediaPickerController>().maxLimit = maxLimit;
-        Get.find<MediaPickerController>().mediaType = mediaType;
-        Get.find<MediaPickerController>().init();
-        await Future.delayed(const Duration(seconds: 1));
-        if (context.mounted) {
-          return showGridBottomSheet(context, maxLimit);
-        }
+      }
+      await Future.delayed(const Duration(seconds: 1));
+      if (context.mounted) {
+        return showGridBottomSheet(context, maxLimit);
       }
     } else if (status == PermissionState.limited) {
       await PhotoManager.openSetting();
@@ -96,11 +89,14 @@ class MediaPicker {
   ///
   /// Navigates to the [CameraScreen] and waits for a file to be captured.
   /// Returns the file path if successful, otherwise returns `null`.
-  Future<String?> capturedFile({bool ? allowRecord}) async {
+  Future<String?> capturedFile({bool? allowRecord}) async {
     String? capturedPath;
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => CameraScreen(allowRecord: allowRecord ?? false,)),
+      MaterialPageRoute(
+          builder: (context) => CameraScreen(
+                allowRecord: allowRecord ?? false,
+              )),
     ).then((path) {
       capturedPath = path;
     }).catchError((e) {
