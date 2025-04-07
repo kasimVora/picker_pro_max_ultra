@@ -6,15 +6,19 @@ import 'package:flutter/material.dart';
 
 /// A screen that provides camera functionality for capturing photos and videos.
 class CameraScreen extends StatefulWidget {
+  /// Whether video recording is allowed on this screen.
+  final bool allowRecord;
+
   /// Creates a [CameraScreen] widget.
-  const CameraScreen({super.key});
+  ///
+  /// The [allowRecord] parameter specifies if video recording is enabled.
+  const CameraScreen({super.key, required this.allowRecord});
 
   @override
   State<CameraScreen> createState() => _CameraScreenState();
 }
 
-class _CameraScreenState extends State<CameraScreen>
-    with WidgetsBindingObserver {
+class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver {
   List<CameraDescription> cameraDes = [];
   CameraController? controller;
   int camMode = 0;
@@ -23,7 +27,7 @@ class _CameraScreenState extends State<CameraScreen>
   double maxZoomLevel = 0;
   int flashMode = 0, timer = 0;
   int cameIndex = 0;
-  bool isRecording = false, captured = false;
+  bool isRecording = false, captured = false ;
   StreamController<int>? seconds;
   Timer? time;
   String? filePath;
@@ -192,7 +196,7 @@ class _CameraScreenState extends State<CameraScreen>
       bottom: 0,
       child: SafeArea(
         child: Center(
-          widthFactor: 2.25,
+          widthFactor: widget.allowRecord ?  2 : 2.4,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -202,13 +206,11 @@ class _CameraScreenState extends State<CameraScreen>
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Row(
+                    spacing: 10,
                     children: [
                       typeChip(0),
-                      const SizedBox(
-                        width: 10,
-                      ),
+                      if(widget.allowRecord)
                       typeChip(1),
-                      Spacer(flex: 1,),
                     ],
                   ),
                 ),
@@ -326,12 +328,7 @@ class _CameraScreenState extends State<CameraScreen>
   startVideoButton({required BuildContext context}) {
     return GestureDetector(
       onTap: () {
-        // context.read<CameraBloc>().add(const CameraEvent.recordVideo());
-        // timer = Timer.periodic(const Duration(seconds: 1), (Timer t) async {
-        //   context
-        //       .read<CameraBloc>()
-        //       .add(CameraEvent.startTimer(count: t.tick));
-        // });
+        recordVideo();
       },
       child: Container(
         height: 70,
@@ -349,8 +346,6 @@ class _CameraScreenState extends State<CameraScreen>
       onTap: () async {
         recordVideo();
         stopTimer();
-
-        // timer!.cancel();
       },
       child: Column(
         children: [
@@ -459,19 +454,18 @@ class _CameraScreenState extends State<CameraScreen>
   void recordVideo() async {
     if (isRecording) {
       var cFile = await controller?.stopVideoRecording();
-
+      isRecording = false;
       if (cFile != null) {
         filePath = cFile.path;
-        setState(() {});
-      } else {
-        isRecording = false;
-        setState(() {});
+        print("file path is${filePath}");
       }
+      setState(() {});
     } else {
       await controller?.prepareForVideoRecording();
       await controller?.startVideoRecording();
       isRecording = true;
-      time = null;
+      timer = 0;
+      startTimer();
       setState(() {});
     }
   }
@@ -483,11 +477,21 @@ class _CameraScreenState extends State<CameraScreen>
     });
   }
 
-  stopTimer() async {
+ void stopTimer() async {
+    time?.cancel();
     setState(() {
       timer = 0;
+      time = null;
     });
   }
+  void startTimer() {
+    time = Timer.periodic(const Duration(seconds: 1), (timerInstance) {
+      setState(() {
+        timer++;
+      });
+    });
+  }
+
 
   void switchMode(mode) {
     if (filePath == null) {

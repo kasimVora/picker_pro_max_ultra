@@ -1,3 +1,6 @@
+## 1.0.7
+- allow video recording from camera
+
 ## 1.0.6
 - bug fix
 

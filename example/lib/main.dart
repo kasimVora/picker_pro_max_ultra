@@ -28,8 +28,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-
   @override
   void initState() {
     super.initState();
@@ -47,13 +45,15 @@ class _MyHomePageState extends State<MyHomePage> {
         children: [
           FloatingActionButton(
             child: const Icon(Icons.filter),
-            onPressed: () async{
-              var d = await  MediaPicker(
-                  context: context,maxLimit: 5 ?? 1,mediaType: MediaType.image
-              ).showPicker();
+            onPressed: () async {
+              var d = await MediaPicker(
+                      context: context,
+                      maxLimit: 5 ?? 1,
+                      mediaType: MediaType.image)
+                  .showPicker();
 
-              if(d!=null){
-                for(var i in d){
+              if (d != null) {
+                for (var i in d) {
                   print("i.path");
                   print(i.mediaFile!.path);
                 }
@@ -62,11 +62,13 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           FloatingActionButton(
             child: const Icon(Icons.camera),
-            onPressed: () async{
-              var d = await  MediaPicker(context: context).capturedFile();
-              if(d!=null){
-                  print("i.path");
-                  print(d.toString());
+            onPressed: () async {
+              var d = await MediaPicker(
+                context: context,
+              ).capturedFile(allowRecord: false);
+              if (d != null) {
+                print("i.path");
+                print(d.toString());
               }
             },
           ),
@@ -74,6 +76,4 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-
-
 }

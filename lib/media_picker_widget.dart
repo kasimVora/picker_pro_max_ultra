@@ -96,12 +96,11 @@ class MediaPicker {
   ///
   /// Navigates to the [CameraScreen] and waits for a file to be captured.
   /// Returns the file path if successful, otherwise returns `null`.
-  Future<String?> capturedFile() async {
+  Future<String?> capturedFile({bool ? allowRecord}) async {
     String? capturedPath;
-
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => CameraScreen()),
+      MaterialPageRoute(builder: (context) => CameraScreen(allowRecord: allowRecord ?? false,)),
     ).then((path) {
       capturedPath = path;
     }).catchError((e) {
