@@ -76,16 +76,14 @@ Add the following entries to your `ios/Runner/Info.plist`:
 ## 🧪 Example Usage
 
 ```dart
-final picker = PickerProMaxUltra();
 
 // Pick media
-final List<MediaFile> files = await picker.pickMedia(
-  allowMultiple: true,
-  mediaType: MediaType.image,
-);
+final List<MediaFile> files =  await  MediaPicker(
+context: context,maxLimit: 5 ?? 1,mediaType: MediaType.image
+).showPicker();
 
 // Capture from camera
-final MediaFile? captured = await picker.captureImage();
+final MediaFile? captured = await MediaPicker(context: context).capturedFile();
 ```
 
 For a full example, check out the [example folder](https://github.com/kasimVora/picker_pro_max_ultra/tree/MAIN/example).
