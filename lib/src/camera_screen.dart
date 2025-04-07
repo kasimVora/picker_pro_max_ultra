@@ -207,8 +207,8 @@ class _CameraScreenState extends State<CameraScreen>
                       const SizedBox(
                         width: 10,
                       ),
-                      //typeChip(1),
-                      // Spacer(flex: 1,),
+                      typeChip(1),
+                      Spacer(flex: 1,),
                     ],
                   ),
                 ),
