@@ -5,7 +5,7 @@
 A powerful and customizable media picker for Flutter, built with performance and ease of use in
 mind.
 
-Easily pick images and videos from device storage or capture new ones with camera support. Comes
+Easily pick images , file and videos from device storage or capture new ones with camera support. Comes
 with advanced features like folder browsing, multi-selection, capture image from camera, and custom
 UI using GetX.
 
@@ -23,9 +23,8 @@ UI using GetX.
 - 🖼 Pick images & videos from the gallery
 - 📂 Folder-based media browsing
 - 🔁 Multi-selection support
+- 🔁 File pick support
 - ⚡ Fast loading with optimized performance
-- 📉 Automatic image compression
-- 🎨 Customizable UI with GetX
 
 ---
 
@@ -51,13 +50,11 @@ Add the following permissions to
 your `AndroidManifest.xml` (`android/app/src/main/AndroidManifest.xml`):
 
 ```xml
-<!-- Media Access -->
-<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" /><uses-permission
-android:name="android.permission.READ_MEDIA_VIDEO" /><uses-permission
-android:name="android.permission.READ_EXTERNAL_STORAGE"
-android:maxSdkVersion="32" /><uses-permission
-android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
+    <!-- Media Access -->
+<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+<uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <!-- Camera Access -->
 <uses-permission android:name="android.permission.CAMERA" />
 ```
