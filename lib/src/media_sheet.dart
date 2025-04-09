@@ -60,7 +60,7 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
   List<AssetPathEntity> mediaFolders = [];
 
   /// The list of media files (images/videos) currently displayed.
-  List<MediaViewModel> mediaFiles = [];
+  List<MediaViewModel> mediaFiles = MediaViewModel.dummyList();
 
   /// The list of media files selected by the user.
   List<MediaViewModel> selectedFiles = [];

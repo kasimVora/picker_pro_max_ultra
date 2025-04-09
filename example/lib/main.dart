@@ -89,7 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: () async {
               var d = await MediaPicker(
                 context: context,
-              ).capturedFile(allowRecord: true);
+              ).capturedFile(allowRecord: false);
               if (d != null) {
                 print("i.path");
                 print(d.toString());
