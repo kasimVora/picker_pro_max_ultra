@@ -98,7 +98,7 @@ the [example folder](https://github.com/kasimVora/picker_pro_max_ultra/tree/MAIN
 ---
 ## 🎥 Demo (Screen Recording)
 
-![Screen Recording](https://raw.githubusercontent.com/kasimVora/picker_pro_max_ultra/MAIN/screenshots/demo.gif)
+![Screen Recording](https://raw.githubusercontent.com/kasimVora/picker_pro_max_ultra/MAIN/screenshots/demo.gif?raw=true)
 
 
 
