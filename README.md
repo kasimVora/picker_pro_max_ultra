@@ -83,32 +83,17 @@ Add the following entries to your `ios/Runner/Info.plist`:
 ```dart
 
 // Pick media
-final List<MediaFile> files = await
-MediaPicker
-(
-context: context,maxLimit: 5 ?? 1,mediaType: MediaType.image
-).showPicker();
-
+final List<MediaFile> files = await MediaPicker(context: context,maxLimit: 5 ?? 1,mediaType: MediaType.image).showPicker();
 // Capture from camera
-final MediaFile? captured = await MediaPicker(context: context
-)
-.
-capturedFile
-(
-);
+final File? captured = await MediaPicker(context: context).capturedFile();
+// Document
+final File? = await MediaPicker(context: context,).picFile();
+
+
 ```
 
 For a full example, check out
-the [example folder](https://github.com/kasimVora/picker_pro_max_ultra/tree/MAIN/example).
-
----
-
-## 📸 Screenshots
-
-|                                                                                                                                  |                                                                                                                                 |                                                                                                                                  |
-|----------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
-| ![Screenshot 1](https://raw.githubusercontent.com/kasimVora/picker_pro_max_ultra/MAIN/screenshots/OCPhoto.765690179.842269.jpeg) | ![Screenshot 2](https://raw.githubusercontent.com/kasimVora/picker_pro_max_ultra/MAIN/screenshots/OCPhoto.765690179.63493.jpeg) | ![Screenshot 3](https://raw.githubusercontent.com/kasimVora/picker_pro_max_ultra/MAIN/screenshots/OCPhoto.765690180.079217.jpeg) |
-| ![Screenshot 4](https://raw.githubusercontent.com/kasimVora/picker_pro_max_ultra/MAIN/screenshots/OCPhoto.765691778.497244.jpeg) |                                                                                                                                 |                                                                                                                                  |
+the [example folder](https://github.com/kasimVora/picker_pro_max_ultra/tree/MAIN/example). |                                                                                                                                  |
 
 ---
 ## 🎥 Demo (Screen Recording)

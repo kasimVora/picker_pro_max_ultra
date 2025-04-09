@@ -9,6 +9,8 @@ import 'package:picker_pro_max_ultra/src/camera_screen.dart';
 import 'package:picker_pro_max_ultra/src/media_manager.dart';
 import 'package:picker_pro_max_ultra/src/media_sheet.dart';
 
+import 'doc/document.dart';
+
 /// Represents different types of media files.
 enum MediaType {
   /// An image file (e.g., PNG, JPG).
@@ -89,8 +91,8 @@ class MediaPicker {
   ///
   /// Navigates to the [CameraScreen] and waits for a file to be captured.
   /// Returns the file path if successful, otherwise returns `null`.
-  Future<String?> capturedFile({bool? allowRecord}) async {
-    String? capturedPath;
+  Future<File?> capturedFile({bool? allowRecord}) async {
+    File? capturedPath;
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -98,12 +100,21 @@ class MediaPicker {
                 allowRecord: allowRecord ?? false,
               )),
     ).then((path) {
-      capturedPath = path;
+      if (path != null) {
+        capturedPath = File(path);
+      }
     }).catchError((e) {
       capturedPath = null;
     });
 
     return capturedPath;
+  }
+
+  /// Opens the system file picker to select a document.
+  ///
+  /// Returns the selected file's path if successful, otherwise `null`.
+  Future<File?> picFile() {
+    return DocumentPicker().picFile();
   }
 }
 

@@ -211,7 +211,9 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
                       margin: const EdgeInsets.only(right: 10),
                       decoration: BoxDecoration(
                         color: tabIndex == index
-                            ? Theme.of(context).primaryColor.withValues(alpha: 0.2)
+                            ? Theme.of(context)
+                                .primaryColor
+                                .withValues(alpha: 0.2)
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -265,7 +267,7 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
             children: [
               InkWell(
                 onTap: () => Navigator.pop(context, null),
-                child:  Padding(
+                child: Padding(
                   padding: EdgeInsets.all(8.0),
                   child: Text("Cancel",
                       style: TextStyle(color: Theme.of(context).primaryColor)),
@@ -276,7 +278,7 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
                   Navigator.pop(
                       context, selectedFiles.isNotEmpty ? selectedFiles : null);
                 },
-                child:  Padding(
+                child: Padding(
                   padding: EdgeInsets.all(8.0),
                   child: Text("Done",
                       style: TextStyle(color: Theme.of(context).primaryColor)),

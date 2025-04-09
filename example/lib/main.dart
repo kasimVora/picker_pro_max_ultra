@@ -5,22 +5,14 @@ import 'package:picker_pro_max_ultra/media_picker_widget.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-
-  FlutterError.onError = (details) {
-    FlutterError.presentError(details);
-    debugPrint('Flutter Error: ${details.exception}');
-  };
-
-  runZonedGuarded(() {
-    runApp(MyApp());
-  }, (error, stack) {
-    debugPrint('Dart Error: $error');
-  });
+  runApp(MyApp());
 }
 
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +34,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
+  String filePath = "";
   @override
   void initState() {
     super.initState();
@@ -53,6 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: const Text('Image Psicker'),
       ),
+      body: Center(child: Text("Picked or Captured file path is $filePath")),
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         spacing: 10,
@@ -68,10 +63,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                   .showPicker();
 
                 if (d != null) {
-                                for (var i in d) {
-                                  print("i.path");
-                                  print(i.mediaFile!.path);
-                                }
+
+                  filePath = d.first.mediaFile!.path;
+                  setState(() {
+
+                  });
                               }
               } catch (e) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -85,15 +81,25 @@ class _MyHomePageState extends State<MyHomePage> {
             },
           ),
           FloatingActionButton(
+            child: const Icon(Icons.file_copy),
+            onPressed: () async {
+              var d = await MediaPicker(context: context,).picFile();
+              filePath = d!.path;
+              setState(() {
+
+              });
+            },
+          ),
+          FloatingActionButton(
             child: const Icon(Icons.camera),
             onPressed: () async {
               var d = await MediaPicker(
                 context: context,
-              ).capturedFile(allowRecord: false);
-              if (d != null) {
-                print("i.path");
-                print(d.toString());
-              }
+              ).capturedFile();
+              filePath = d!.path;
+              setState(() {
+
+              });
             },
           ),
         ],
