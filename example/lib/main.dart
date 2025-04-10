@@ -55,51 +55,53 @@ class _MyHomePageState extends State<MyHomePage> {
           FloatingActionButton(
             child: const Icon(Icons.filter),
             onPressed: () async {
-              try {
-                var d = await MediaPicker(
-                                      context: context,
-                                      maxLimit: 5 ?? 1,
-                                      mediaType: MediaType.image)
-                                  .showPicker();
-
-                if (d != null) {
-
-                  filePath = d.first.mediaFile!.path;
-                  setState(() {
-
-                  });
-                              }
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(e.toString()),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
-
-              }
+              /// show loader
+              MediaPicker(
+                      context: context,
+                      maxLimit: 5 ?? 1,
+                      mediaType: MediaType.image)
+                  .showPicker()
+                  .then((file) {
+                /// hide loader
+                if (file != null) {
+                  filePath = file.first.mediaFile!.path;
+                  setState(() {});
+                }
+              }).catchError((onError) {
+                /// hide loader
+              });
             },
           ),
           FloatingActionButton(
             child: const Icon(Icons.file_copy),
             onPressed: () async {
-              var d = await MediaPicker(context: context,).picFile();
-              filePath = d!.path;
-              setState(() {
-
+              MediaPicker(
+                context: context,
+              ).picFile().then((file) {
+                /// hide loader
+                if (file != null) {
+                  filePath = file.path;
+                  setState(() {});
+                }
+              }).catchError((onError) {
+                /// hide loader
               });
             },
           ),
           FloatingActionButton(
             child: const Icon(Icons.camera),
             onPressed: () async {
-              var d = await MediaPicker(
+             MediaPicker(
                 context: context,
-              ).capturedFile();
-              filePath = d!.path;
-              setState(() {
-
-              });
+              ).capturedFile().then((file) {
+               /// hide loader
+               if (file != null) {
+                 filePath = file.path;
+                 setState(() {});
+               }
+             }).catchError((onError) {
+               /// hide loader
+             });
             },
           ),
         ],

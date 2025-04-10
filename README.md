@@ -7,7 +7,7 @@ mind.
 
 Easily pick images , file and videos from device storage or capture new ones with camera support. Comes
 with advanced features like folder browsing, multi-selection, capture image from camera, and custom
-UI using GetX.
+UI also allow to pick file.
 
 ---
 
@@ -65,12 +65,15 @@ Add the following entries to your `ios/Runner/Info.plist`:
 
 ```xml
 
-<key>NSPhotoLibraryUsageDescription</key><string>This app requires access to your photo library.
+<key>NSPhotoLibraryUsageDescription</key>
+<string>This app requires access to your photo library.
 </string>
 
-<key>NSCameraUsageDescription</key><string>This app requires access to the camera.</string>
+<key>NSCameraUsageDescription</key>
+<string>This app requires access to the camera.</string>
 
-<key>NSMicrophoneUsageDescription</key><string>This app requires access to the microphone.</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>This app requires access to the microphone.</string>
 ```
 
 ---
@@ -80,11 +83,48 @@ Add the following entries to your `ios/Runner/Info.plist`:
 ```dart
 
 // Pick media
-final List<MediaFile> files = await MediaPicker(context: context,maxLimit: 5 ?? 1,mediaType: MediaType.image).showPicker();
+
+  // show loader
+              MediaPicker(
+                      context: context,
+                      maxLimit: 5 ?? 1,
+                      mediaType: MediaType.image)
+                  .showPicker()
+                  .then((file) {
+                // hide loader
+                if (file != null) {
+                  filePath = file.first.mediaFile!.path;
+                  setState(() {});
+                }
+              }).catchError((onError) {
+                // hide loader
+              });
+			  
+			  
 // Capture from camera
-final File? captured = await MediaPicker(context: context).capturedFile();
+     MediaPicker(
+                context: context,
+              ).capturedFile().then((file) {
+               /// hide loader
+               if (file != null) {
+                 filePath = file.path;
+                 setState(() {});
+               }
+             }).catchError((onError) {
+               /// hide loader
+             });
 // Document
-final File? = await MediaPicker(context: context,).picFile();
+    MediaPicker(
+                context: context,
+              ).picFile().then((file) {
+                /// hide loader
+                if (file != null) {
+                  filePath = file.path;
+                  setState(() {});
+                }
+              }).catchError((onError) {
+                /// hide loader
+              });
 
 
 ```
