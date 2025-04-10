@@ -14,15 +14,9 @@ class DocumentMethodChannel extends DocumentPlatform {
   @override
   Future<File?> getDoc({required int limit}) async {
     String? version;
-
-    if (Platform.isIOS) {
-      version =
-          await methodChannel.invokeMethod<String>('getDoc', {'limit': limit});
-    } else {
-      version =
-          (await methodChannel.invokeMethod<List>('getDoc', {'limit': limit}))
-              ?.firstOrNull;
-    }
+    version =
+        (await methodChannel.invokeMethod<List>('getDoc', {'limit': limit}))
+            ?.firstOrNull;
     return version != null ? File(version) : null;
   }
 }

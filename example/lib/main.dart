@@ -59,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 var d = await MediaPicker(
                                       context: context,
                                       maxLimit: 5 ?? 1,
-                                      mediaType: MediaType.video)
+                                      mediaType: MediaType.image)
                                   .showPicker();
 
                 if (d != null) {

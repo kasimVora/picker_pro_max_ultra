@@ -81,7 +81,7 @@ class MediaTile extends StatelessWidget {
                             // Display the media thumbnail with an optional blur effect when selected.
                             Positioned.fill(
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(10),
                                 child: ClipRect(
                                   child: ImageFiltered(
                                     imageFilter: ImageFilter.blur(

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
+import '../media_picker_widget.dart';
 import 'loading_status.dart';
 import 'media_manager.dart';
 import 'media_tile.dart';
@@ -17,22 +18,42 @@ import 'media_tile.dart';
 /// [context] - The [BuildContext] to show the bottom sheet in.
 /// [maxLimit] - The maximum number of media items the user can select.
 Future<List<MediaViewModel>?> showGridBottomSheet(
-    BuildContext context, int maxLimit) {
+    BuildContext context, int maxLimit, MediaType type) {
   return showModalBottomSheet<List<MediaViewModel>?>(
     context: context,
     isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
-    ),
+    backgroundColor: Colors.transparent, // Important for custom design
     builder: (context) {
-      return DraggableScrollableSheet(
-        initialChildSize: 0.6,
-        minChildSize: 0.3,
-        maxChildSize: 0.95,
-        expand: false,
-        builder: (context, scrollController) {
-          return _MediaPickerBottomSheet(maxLimit: maxLimit);
-        },
+      return ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.15),
+                blurRadius: 15,
+                spreadRadius: 5,
+              )
+            ],
+          ),
+          child: DraggableScrollableSheet(
+            initialChildSize: 0.70,
+            minChildSize: 0.3,
+            maxChildSize: 0.95,
+            expand: false,
+            builder: (context, scrollController) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: _MediaPickerBottomSheet(
+                  maxLimit: maxLimit,
+                  mediaType: type,
+                ),
+              );
+            },
+          ),
+        ),
       );
     },
   );
@@ -46,7 +67,10 @@ class _MediaPickerBottomSheet extends StatefulWidget {
   /// The maximum number of media files the user can select.
   final int maxLimit;
 
-  const _MediaPickerBottomSheet({required this.maxLimit});
+  final MediaType mediaType;
+
+  const _MediaPickerBottomSheet(
+      {required this.maxLimit, required this.mediaType});
 
   @override
   State<_MediaPickerBottomSheet> createState() =>
@@ -94,7 +118,9 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
 
   /// Initializes the media folders and the first page of media.
   Future<void> init() async {
-    await fetchAlbums(RequestType.image);
+    await fetchAlbums(widget.mediaType == MediaType.video
+        ? RequestType.video
+        : RequestType.image);
     await fetchMediaOfAlbum(0);
   }
 
@@ -183,41 +209,78 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      clipBehavior: Clip.hardEdge,
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
         children: [
-          /// Media Folder Tabs
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: Colors.grey[400],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+
+          /// Folder Tabs
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(horizontal: 4),
             child: Row(
               children: List.generate(mediaFolders.length, (index) {
-                return InkWell(
-                  highlightColor: Colors.transparent,
-                  splashColor: Colors.transparent,
-                  onTap: () async {
-                    if (loadStatus != LoadStatus.loading) {
-                      await fetchMediaOfAlbum(index);
-                    }
-                  },
-                  child: Skeletonizer(
-                    enabled: loadStatus == LoadStatus.loading &&
-                        mediaFolders.isEmpty,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
-                      margin: const EdgeInsets.only(right: 10),
-                      decoration: BoxDecoration(
-                        color: tabIndex == index
-                            ? Theme.of(context)
-                                .primaryColor
-                                .withValues(alpha: 0.2)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(10),
+                return Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(20),
+                    onTap: () async {
+                      if (loadStatus != LoadStatus.loading) {
+                        await fetchMediaOfAlbum(index);
+                      }
+                    },
+                    child: Skeletonizer(
+                      enabled: loadStatus == LoadStatus.loading &&
+                          mediaFolders.isEmpty,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: tabIndex == index
+                              ? Theme.of(context)
+                                  .primaryColor
+                                  .withValues(alpha: 0.15)
+                              : Colors.grey[200],
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: tabIndex == index
+                              ? [
+                                  BoxShadow(
+                                    color: Theme.of(context)
+                                        .primaryColor
+                                        .withValues(alpha: 0.2),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ]
+                              : [],
+                        ),
+                        child: Text(
+                          mediaFolders[index].name,
+                          style: TextStyle(
+                            color: tabIndex == index
+                                ? Theme.of(context).primaryColor
+                                : Colors.black87,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ),
-                      child: Text(mediaFolders[index].name),
                     ),
                   ),
                 );
@@ -232,6 +295,7 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
               enabled: loadStatus == LoadStatus.loading,
               child: GridView.builder(
                 controller: _scrollController,
+                padding: EdgeInsets.symmetric(horizontal: 8),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
                   mainAxisSpacing: 8.0,
@@ -241,50 +305,67 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
                 itemCount: mediaFiles.length,
                 itemBuilder: (context, index) {
                   final media = mediaFiles[index];
-                  return MediaTile(
-                    media: media,
-                    onThumbnailLoad: (thumb) {
-                      media.thumbnail = thumb;
-                      setState(() {});
-                    },
-                    onSelected: (_) {
-                      onFileSelect(media);
-                      if (widget.maxLimit == 1) {
-                        Navigator.pop(context, [media]);
-                      }
-                    },
-                    isSelected: selectedFiles.any((t) => t.id == media.id),
-                    selectionIndex: getSelectionIndex(media),
+                  return Skeleton.replace(
+                    replacement: Bone(
+                      height: 100,
+                      width: 100,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: MediaTile(
+                      media: media,
+                      onThumbnailLoad: (thumb) {
+                        media.thumbnail = thumb;
+                        setState(() {});
+                      },
+                      onSelected: (_) {
+                        onFileSelect(media);
+                        if (widget.maxLimit == 1) {
+                          Navigator.pop(context, [media]);
+                        }
+                        setState(() {});
+                      },
+                      isSelected: selectedFiles.any((t) => t.id == media.id),
+                      selectionIndex: getSelectionIndex(media),
+                    ),
                   );
                 },
               ),
             ),
           ),
 
-          /// Bottom Buttons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              InkWell(
-                onTap: () => Navigator.pop(context, null),
-                child: Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text("Cancel",
-                      style: TextStyle(color: Theme.of(context).primaryColor)),
+          /// Action Buttons
+          Padding(
+            padding: const EdgeInsets.only(top: 12.0, left: 10, right: 10),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context, null),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Theme.of(context).primaryColor,
+                      side: BorderSide(
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                    child: const Text("Cancel"),
+                  ),
                 ),
-              ),
-              InkWell(
-                onTap: () {
-                  Navigator.pop(
-                      context, selectedFiles.isNotEmpty ? selectedFiles : null);
-                },
-                child: Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text("Done",
-                      style: TextStyle(color: Theme.of(context).primaryColor)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context,
+                          selectedFiles.isNotEmpty ? selectedFiles : null);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).primaryColor,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text("Done"),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

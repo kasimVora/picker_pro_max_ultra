@@ -78,7 +78,7 @@ class MediaPicker {
       }
       await Future.delayed(const Duration(seconds: 1));
       if (context.mounted) {
-        return showGridBottomSheet(context, maxLimit);
+        return showGridBottomSheet(context, maxLimit, mediaType);
       }
     } else if (status == PermissionState.limited) {
       await PhotoManager.openSetting();

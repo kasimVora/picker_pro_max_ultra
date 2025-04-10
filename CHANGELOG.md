@@ -1,3 +1,6 @@
+## 2.0.2
+- Ui changes
+
 ## 2.0.1
 - bug fix in ios choose Document
 
