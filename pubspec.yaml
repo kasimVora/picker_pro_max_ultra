@@ -13,7 +13,6 @@ dependencies:
   flutter:
     sdk: flutter
   photo_manager: ^3.6.4
-  skeletonizer: ^1.4.3
   plugin_platform_interface: ^2.0.2
 
 dev_dependencies:

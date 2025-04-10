@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:skeletonizer/skeletonizer.dart';
 
 import '../media_picker_widget.dart';
+import 'custom_loading.dart';
 import 'loading_status.dart';
 import 'media_manager.dart';
 import 'media_tile.dart';
@@ -246,10 +246,10 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
                         await fetchMediaOfAlbum(index);
                       }
                     },
-                    child: Skeletonizer(
-                      enabled: loadStatus == LoadStatus.loading &&
+                    child: Shimmer(
+                      visible: loadStatus == LoadStatus.loading &&
                           mediaFolders.isEmpty,
-                      child: Container(
+                      replacement: Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 14, vertical: 8),
                         decoration: BoxDecoration(
@@ -281,6 +281,14 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
                           ),
                         ),
                       ),
+                      child: Container(
+                        width: 100,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
                     ),
                   ),
                 );
@@ -291,45 +299,46 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
 
           /// Media Grid
           Expanded(
-            child: Skeletonizer(
-              enabled: loadStatus == LoadStatus.loading,
-              child: GridView.builder(
-                controller: _scrollController,
-                padding: EdgeInsets.symmetric(horizontal: 8),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  mainAxisSpacing: 8.0,
-                  crossAxisSpacing: 8.0,
-                  childAspectRatio: 1.0,
-                ),
-                itemCount: mediaFiles.length,
-                itemBuilder: (context, index) {
-                  final media = mediaFiles[index];
-                  return Skeleton.replace(
-                    replacement: Bone(
-                      height: 100,
-                      width: 100,
+            child: GridView.builder(
+              controller: _scrollController,
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                mainAxisSpacing: 8.0,
+                crossAxisSpacing: 8.0,
+                childAspectRatio: 1.0,
+              ),
+              itemCount: mediaFiles.length,
+              itemBuilder: (context, index) {
+                final media = mediaFiles[index];
+                return Shimmer(
+                  visible: loadStatus == LoadStatus.loading,
+                  replacement: MediaTile(
+                    media: media,
+                    onThumbnailLoad: (thumb) {
+                      media.thumbnail = thumb;
+                      setState(() {});
+                    },
+                    onSelected: (_) {
+                      onFileSelect(media);
+                      if (widget.maxLimit == 1) {
+                        Navigator.pop(context, [media]);
+                      }
+                      setState(() {});
+                    },
+                    isSelected: selectedFiles.any((t) => t.id == media.id),
+                    selectionIndex: getSelectionIndex(media),
+                  ),
+                  child: Container(
+                    width: 100,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: MediaTile(
-                      media: media,
-                      onThumbnailLoad: (thumb) {
-                        media.thumbnail = thumb;
-                        setState(() {});
-                      },
-                      onSelected: (_) {
-                        onFileSelect(media);
-                        if (widget.maxLimit == 1) {
-                          Navigator.pop(context, [media]);
-                        }
-                        setState(() {});
-                      },
-                      isSelected: selectedFiles.any((t) => t.id == media.id),
-                      selectionIndex: getSelectionIndex(media),
-                    ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
           ),
 

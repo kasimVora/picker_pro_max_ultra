@@ -2,9 +2,9 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:skeletonizer/skeletonizer.dart';
 
 import '../media_picker_widget.dart';
+import 'custom_loading.dart';
 import 'media_manager.dart';
 
 /// A widget representing a selectable media tile in a grid.
@@ -60,10 +60,16 @@ class MediaTile extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.hasError) return const SizedBox();
         if (!snapshot.hasData) {
-          return const Skeleton.replace(
-            child: Bone(
-              height: 100,
+          return Shimmer(
+            visible: !snapshot.hasData,
+            replacement: SizedBox(),
+            child: Container(
               width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           );
         }
