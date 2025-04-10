@@ -32,7 +32,7 @@ abstract class DocumentPlatform extends PlatformInterface {
   /// Picks a document and returns its path as a [String].
   ///
   /// Must be implemented by the platform-specific class.
-  Future<File?> getDoc() {
+  Future<File?> getDoc({required int limit}) {
     throw UnimplementedError('getDoc() has not been implemented.');
   }
 }

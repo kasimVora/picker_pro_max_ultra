@@ -19,7 +19,7 @@ UI using GetX.
 
 ## ✨ Features
 
-- 📸 Capture image using the camera
+- 📸 Capture image & video using the camera
 - 🖼 Pick images & videos from the gallery
 - 📂 Folder-based media browsing
 - 🔁 Multi-selection support

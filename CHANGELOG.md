@@ -1,4 +1,8 @@
-## 1.0.8
+## 2.0.1
+- bug fix in ios choose Document
+
+
+## 1.0.10
 - added document picker
 
 

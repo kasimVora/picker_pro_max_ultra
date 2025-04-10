@@ -8,6 +8,6 @@ class DocumentPicker {
   ///
   /// Returns a list of file paths or URIs depending on the platform.
   Future<File?> picFile() {
-    return DocumentPlatform.instance.getDoc();
+    return DocumentPlatform.instance.getDoc(limit: 1);
   }
 }
