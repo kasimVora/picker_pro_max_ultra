@@ -59,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
               MediaPicker(
                       context: context,
                       maxLimit: 5 ?? 1,
-                      mediaType: MediaType.image)
+                      mediaType: MediaType.video)
                   .showPicker()
                   .then((file) {
                 /// hide loader

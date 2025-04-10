@@ -55,24 +55,24 @@ class MediaPicker {
   ///
   /// Returns a list of [MediaViewModel] if media is selected, otherwise `null`.
   Future<List<MediaViewModel>?> showPicker() async {
-    var status = await PhotoManager.requestPermissionExtend(
-      requestOption: PermissionRequestOption(
-        iosAccessLevel: IosAccessLevel.readWrite, // Ensure full access on iOS
-        androidPermission: AndroidPermission(
-          type: mediaType == MediaType.video
-              ? RequestType.video
-              : RequestType.image,
-          mediaLocation: true, // Ensure media access on Android 13+
-        ),
-      ),
-    );
+    // var status = await PhotoManager.requestPermissionExtend(
+    //   requestOption: PermissionRequestOption(
+    //     iosAccessLevel: IosAccessLevel.readWrite, // Ensure full access on iOS
+    //     androidPermission: AndroidPermission(
+    //       type: mediaType == MediaType.video
+    //           ? RequestType.video
+    //           : RequestType.image,
+    //       mediaLocation: true, // Ensure media access on Android 13+
+    //     ),
+    //   ),
+    // );
 
     if (kDebugMode) {
       print("status.name");
-      print(status.name);
+      //print(status.name);
     }
 
-    if (status.isAuth) {
+   // if (status.isAuth) {
       if (kDebugMode) {
         print("Full access granted");
       }
@@ -80,9 +80,10 @@ class MediaPicker {
       if (context.mounted) {
         return showGridBottomSheet(context, maxLimit, mediaType);
       }
-    } else if (status == PermissionState.limited) {
-      await PhotoManager.openSetting();
-    }
+    // }
+    // else if (status == PermissionState.limited) {
+    //   await PhotoManager.openSetting();
+    // }
 
     return null;
   }

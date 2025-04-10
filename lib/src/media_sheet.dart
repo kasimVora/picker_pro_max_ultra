@@ -153,6 +153,7 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
     if (index != tabIndex) {
       currentPage = 0;
       tabIndex = index;
+      mediaFiles = MediaViewModel.dummyList();
     }
 
     setState(() {
@@ -272,7 +273,7 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
                               : [],
                         ),
                         child: Text(
-                          mediaFolders[index].name,
+                          mediaFolders[index].name.isEmpty ? "Unknown":mediaFolders[index].name,
                           style: TextStyle(
                             color: tabIndex == index
                                 ? Theme.of(context).primaryColor
