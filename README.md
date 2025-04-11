@@ -44,6 +44,13 @@ on [pub.dev](https://pub.dev/packages/picker_pro_max_ultra).
 
 ## ⚙️ Setup
 
+> **📝 Note**
+>
+> Permission handling (e.g. for accessing media, storage, or camera) **must be implemented from the Flutter side** using packages like [`permission_handler`](https://pub.dev/packages/permission_handler) or through manual platform configuration.
+>
+> This plugin does not request or manage permissions internally.
+
+
 ### ✅ Android
 
 Add the following permissions to

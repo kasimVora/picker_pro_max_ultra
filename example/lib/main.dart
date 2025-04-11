@@ -45,7 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Image Psicker'),
+        title: const Text('Image picker demo'),
       ),
       body: Center(child: Text("Picked or Captured file path is $filePath")),
       floatingActionButton: Row(

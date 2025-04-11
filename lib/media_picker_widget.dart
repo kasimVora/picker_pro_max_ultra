@@ -2,9 +2,7 @@ library;
 
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_manager/photo_manager.dart';
 import 'package:picker_pro_max_ultra/src/camera_screen.dart';
 import 'package:picker_pro_max_ultra/src/media_manager.dart';
 import 'package:picker_pro_max_ultra/src/media_sheet.dart';

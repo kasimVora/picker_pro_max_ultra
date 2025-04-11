@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 
@@ -82,6 +83,15 @@ class MediaTile extends StatelessWidget {
                 child: media.thumbnail != null
                     ? GestureDetector(
                         onTap: () => onSelected(media),
+                        onLongPress: () {
+                          if (media.type == MediaType.image &&
+                              media.mediaFile != null) {
+                            showImageDialog(context, media.mediaFile!);
+                          } else {
+                            showCustomToast(context,
+                                "${media.mediaFile?.fileName ?? ""} - ${twoDigits(media.videoDuration!.inMinutes)} : ${twoDigits(media.videoDuration!.inSeconds)}");
+                          }
+                        },
                         child: Stack(
                           children: [
                             // Display the media thumbnail with an optional blur effect when selected.
@@ -201,4 +211,108 @@ class MediaTile extends StatelessWidget {
     if (duration.inHours == 0) return "$minutes:$seconds";
     return "${twoDigits(duration.inHours)}:$minutes:$seconds";
   }
+
+  /// Displays an image in a dialog with zoom and pan support.
+  ///
+  /// The dialog shows the provided [file] image with rounded corners,
+  /// and includes a close button to dismiss the dialog.
+  void showImageDialog(BuildContext context, File file) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          backgroundColor: Colors.grey,
+          insetPadding: const EdgeInsets.all(20),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Stack(
+              children: [
+                InteractiveViewer(
+                  panEnabled: true,
+                  minScale: 1,
+                  maxScale: 4,
+                  child: Image.file(
+                    file,
+                    fit: BoxFit.contain,
+                    width: double.infinity,
+                    height: MediaQuery.of(context).size.height * 0.5,
+                  ),
+                ),
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.black.withValues(alpha: 0.5),
+                      ),
+                      padding: const EdgeInsets.all(6),
+                      child: const Icon(Icons.close, color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// Displays a custom toast message overlay in the current context.
+  ///
+  /// This toast appears at the bottom of the screen with a semi-transparent
+  /// background and disappears after 2 seconds.
+  ///
+  /// [context] is the build context used to access the overlay.
+  /// [message] is the text content of the toast.
+  void showCustomToast(BuildContext context, String message) {
+    final overlay = Overlay.of(context);
+    final overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        bottom: 100,
+        left: MediaQuery.of(context).size.width * 0.1,
+        right: MediaQuery.of(context).size.width * 0.1,
+        child: Material(
+          color: Colors.transparent,
+          child: Center(
+            child: Container(
+              width: 250,
+              // fixed width
+              height: 60,
+              // fixed height
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.85),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                message,
+                style: const TextStyle(color: Colors.white, fontSize: 14),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    overlay.insert(overlayEntry);
+
+    Future.delayed(const Duration(seconds: 2))
+        .then((_) => overlayEntry.remove());
+  }
+
+  /// Returns a string representation of [n] with at least two digits,
+  /// padding with a leading zero if necessary.
+  ///
+  /// For example: `twoDigits(5)` returns `'05'`.
+  String twoDigits(int n) => n.toString().padLeft(2, '0');
 }
