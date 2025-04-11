@@ -1,3 +1,7 @@
+## 2.0.3
+- Performance improvement.
+- Image preview , video info
+
 ## 2.0.2
 - Ui changes
 
