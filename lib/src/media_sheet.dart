@@ -273,7 +273,9 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
                               : [],
                         ),
                         child: Text(
-                          mediaFolders[index].name.isEmpty ? "Unknown":mediaFolders[index].name,
+                          mediaFolders[index].name.isEmpty
+                              ? "Unknown"
+                              : mediaFolders[index].name,
                           style: TextStyle(
                             color: tabIndex == index
                                 ? Theme.of(context).primaryColor

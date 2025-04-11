@@ -34,7 +34,6 @@ class Shimmer extends StatefulWidget {
     required this.replacement,
   });
 
-
   @override
   State<Shimmer> createState() => _ShimmerState();
 }
