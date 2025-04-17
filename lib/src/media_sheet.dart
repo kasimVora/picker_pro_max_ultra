@@ -17,8 +17,8 @@ import 'media_tile.dart';
 ///
 /// [context] - The [BuildContext] to show the bottom sheet in.
 /// [maxLimit] - The maximum number of media items the user can select.
-Future<List<MediaViewModel>?> showGridBottomSheet(
-    BuildContext context, int maxLimit, MediaType type) {
+Future<List<MediaViewModel>?> showGridBottomSheet(BuildContext context,
+    int maxLimit, MediaType type, String cancelText, String doneText) {
   return showModalBottomSheet<List<MediaViewModel>?>(
     context: context,
     isScrollControlled: true,
@@ -49,6 +49,8 @@ Future<List<MediaViewModel>?> showGridBottomSheet(
                 child: _MediaPickerBottomSheet(
                   maxLimit: maxLimit,
                   mediaType: type,
+                  cancelText: cancelText,
+                  doneText: doneText,
                 ),
               );
             },
@@ -67,10 +69,15 @@ class _MediaPickerBottomSheet extends StatefulWidget {
   /// The maximum number of media files the user can select.
   final int maxLimit;
 
+  final String cancelText, doneText;
+
   final MediaType mediaType;
 
   const _MediaPickerBottomSheet(
-      {required this.maxLimit, required this.mediaType});
+      {required this.maxLimit,
+      required this.mediaType,
+      required this.cancelText,
+      required this.doneText});
 
   @override
   State<_MediaPickerBottomSheet> createState() =>
@@ -120,8 +127,12 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
   Future<void> init() async {
     await fetchAlbums(widget.mediaType == MediaType.video
         ? RequestType.video
-        : RequestType.image);
-    await fetchMediaOfAlbum(0);
+        : widget.mediaType == MediaType.audio
+            ? RequestType.audio
+            : RequestType.image);
+    if (mediaFolders.isNotEmpty) {
+      await fetchMediaOfAlbum(0);
+    }
   }
 
   /// Fetches the list of media albums containing at least one asset.
@@ -248,8 +259,7 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
                       }
                     },
                     child: Shimmer(
-                      visible: loadStatus == LoadStatus.loading &&
-                          mediaFolders.isEmpty,
+                      visible: false,
                       replacement: Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 14, vertical: 8),
@@ -301,82 +311,94 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
           const SizedBox(height: 20),
 
           /// Media Grid
-          Expanded(
-            child: GridView.builder(
-              controller: _scrollController,
-              padding: EdgeInsets.symmetric(horizontal: 8),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisSpacing: 8.0,
-                crossAxisSpacing: 8.0,
-                childAspectRatio: 1.0,
+          Visibility(
+            visible: mediaFiles.isNotEmpty,
+            replacement: Expanded(
+              child: Center(
+                child: Text(
+                    "No ${widget.mediaType.name} file found on this device"),
               ),
-              itemCount: mediaFiles.length,
-              itemBuilder: (context, index) {
-                final media = mediaFiles[index];
-                return Shimmer(
-                  visible: loadStatus == LoadStatus.loading,
-                  replacement: MediaTile(
-                    media: media,
-                    onThumbnailLoad: (thumb) {
-                      media.thumbnail = thumb;
-                      setState(() {});
-                    },
-                    onSelected: (_) {
-                      onFileSelect(media);
-                      if (widget.maxLimit == 1) {
-                        Navigator.pop(context, [media]);
-                      }
-                      setState(() {});
-                    },
-                    isSelected: selectedFiles.any((t) => t.id == media.id),
-                    selectionIndex: getSelectionIndex(media),
-                  ),
-                  child: Container(
-                    width: 100,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(10),
+            ),
+            child: Expanded(
+              child: GridView.builder(
+                controller: _scrollController,
+                padding: EdgeInsets.symmetric(horizontal: 8),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  mainAxisSpacing: 8.0,
+                  crossAxisSpacing: 8.0,
+                  childAspectRatio: 1.0,
+                ),
+                itemCount: mediaFiles.length,
+                itemBuilder: (context, index) {
+                  final media = mediaFiles[index];
+                  return Shimmer(
+                    visible: loadStatus == LoadStatus.loading,
+                    replacement: MediaTile(
+                      media: media,
+                      onThumbnailLoad: (thumb) {
+                        media.thumbnail = thumb;
+                        setState(() {});
+                      },
+                      onSelected: (_) {
+                        onFileSelect(media);
+                        if (widget.maxLimit == 1) {
+                          Navigator.pop(context, [media]);
+                        }
+                        setState(() {});
+                      },
+                      isSelected: selectedFiles.any((t) => t.id == media.id),
+                      selectionIndex: getSelectionIndex(media),
                     ),
-                  ),
-                );
-              },
+                    child: Container(
+                      width: 100,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
 
           /// Action Buttons
-          Padding(
-            padding: const EdgeInsets.only(top: 12.0, left: 10, right: 10),
-            child: Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context, null),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Theme.of(context).primaryColor,
-                      side: BorderSide(
-                        color: Theme.of(context).primaryColor,
+          Visibility(
+            visible: mediaFolders.isNotEmpty,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 12.0, left: 10, right: 10),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context, null),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Theme.of(context).primaryColor,
+                        side: BorderSide(
+                          color: Theme.of(context).primaryColor,
+                        ),
                       ),
+                      child: Text(widget.cancelText),
                     ),
-                    child: const Text("Cancel"),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context,
-                          selectedFiles.isNotEmpty ? selectedFiles : null);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).primaryColor,
-                      foregroundColor: Colors.white,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context,
+                            selectedFiles.isNotEmpty ? selectedFiles : null);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColor,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: Text(widget.doneText),
                     ),
-                    child: const Text("Done"),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],

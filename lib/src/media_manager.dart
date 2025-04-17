@@ -59,17 +59,22 @@ class MediaViewModel {
     var mediaType = MediaType.unknown;
     if (entity.type == AssetType.video) mediaType = MediaType.video;
     if (entity.type == AssetType.image) mediaType = MediaType.image;
+    if (entity.type == AssetType.audio) mediaType = MediaType.audio;
 
     return MediaViewModel(
       id: entity.id,
-      thumbnailAsync:
-          entity.thumbnailDataWithSize(const ThumbnailSize(200, 200)),
+      thumbnailAsync: mediaType != MediaType.audio
+          ? entity.thumbnailDataWithSize(const ThumbnailSize(200, 200))
+          : null,
       type: mediaType,
       thumbnail: null,
       // Thumbnail is set asynchronously.
       mediaFile: await entity.file,
-      videoDuration:
-          entity.type == AssetType.video ? entity.videoDuration : null,
+      videoDuration: entity.type == AssetType.video
+          ? entity.videoDuration
+          : entity.type == AssetType.audio
+              ? Duration(seconds: entity.duration)
+              : null,
     );
   }
 }

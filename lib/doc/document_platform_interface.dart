@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
+import '../media_picker_widget.dart';
 import 'document_method_channel.dart';
 
 /// The interface that all platform-specific implementations of the document picker must extend.
@@ -32,7 +33,11 @@ abstract class DocumentPlatform extends PlatformInterface {
   /// Picks a document and returns its path as a [String].
   ///
   /// Must be implemented by the platform-specific class.
-  Future<File?> getDoc({required int limit}) {
+  Future<File?> getDoc({required int limit, required MediaType mediaType}) {
     throw UnimplementedError('getDoc() has not been implemented.');
+  }
+
+  Future<String?> compressFile({required String inputPath}) {
+    throw UnimplementedError('compressFile() has not been implemented.');
   }
 }

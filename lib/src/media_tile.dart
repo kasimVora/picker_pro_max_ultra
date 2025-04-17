@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../media_picker_widget.dart';
@@ -51,7 +52,8 @@ class MediaTile extends StatelessWidget {
   Widget build(BuildContext context) {
     // Load the media thumbnail asynchronously.
     var loadThumb = Future<Uint8List?>(() async {
-      var thumb = await media.thumbnailAsync;
+      Uint8List? thumb = await media.thumbnailAsync;
+
       onThumbnailLoad?.call(thumb);
       return thumb;
     });
@@ -60,7 +62,7 @@ class MediaTile extends StatelessWidget {
       future: loadThumb,
       builder: (context, snapshot) {
         if (snapshot.hasError) return const SizedBox();
-        if (!snapshot.hasData) {
+        if (media.type != MediaType.audio && !snapshot.hasData) {
           return Shimmer(
             visible: !snapshot.hasData,
             replacement: SizedBox(),
@@ -80,88 +82,94 @@ class MediaTile extends StatelessWidget {
           child: Stack(
             children: [
               Positioned.fill(
-                child: media.thumbnail != null
-                    ? GestureDetector(
-                        onTap: () => onSelected(media),
-                        onLongPress: () {
-                          if (media.type == MediaType.image &&
-                              media.mediaFile != null) {
-                            showImageDialog(context, media.mediaFile!);
-                          } else {
-                            showCustomToast(context,
-                                "${media.mediaFile?.fileName ?? ""} - ${twoDigits(media.videoDuration!.inMinutes)} : ${twoDigits(media.videoDuration!.inSeconds)}");
-                          }
-                        },
-                        child: Stack(
-                          children: [
-                            // Display the media thumbnail with an optional blur effect when selected.
-                            Positioned.fill(
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: ClipRect(
-                                  child: ImageFiltered(
-                                    imageFilter: ImageFilter.blur(
-                                      sigmaX: isSelected ? 5 : 0,
-                                      sigmaY: isSelected ? 5 : 0,
-                                    ),
-                                    child: Image.memory(
-                                      media.thumbnail!,
-                                      cacheWidth: 250,
-                                      // Adjust as needed
-                                      cacheHeight: 250,
-                                      filterQuality: FilterQuality.low,
-                                      key: ValueKey<String>(media.id),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                              ),
+                  child: GestureDetector(
+                onTap: () => onSelected(media),
+                onLongPress: () {
+                  if (media.type == MediaType.image &&
+                      media.mediaFile != null) {
+                    showImageDialog(context, media.mediaFile!);
+                  } else {
+                    showCustomToast(context,
+                        "${media.mediaFile?.fileName ?? ""} - ${twoDigits(media.videoDuration!.inMinutes)} : ${twoDigits(media.videoDuration!.inSeconds)}");
+                  }
+                },
+                child: Stack(
+                  children: [
+                    // Display the media thumbnail with an optional blur effect when selected.
+                    Positioned.fill(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: ClipRect(
+                          child: ImageFiltered(
+                            imageFilter: ImageFilter.blur(
+                              sigmaX: isSelected ? 5 : 0,
+                              sigmaY: isSelected ? 5 : 0,
                             ),
-
-                            // Overlay when the tile is selected.
-                            Positioned.fill(
-                              child: AnimatedOpacity(
-                                opacity: isSelected ? 1 : 0,
-                                curve: Curves.easeOut,
-                                duration: _duration,
-                                child: ClipRect(
-                                  child: Container(
+                            child: media.type == MediaType.audio
+                                ? Container(
                                     decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12),
-                                      color: Colors.black26,
+                                        borderRadius: BorderRadius.circular(12),
+                                        color: Colors.pinkAccent),
+                                    height: 100,
+                                    width: 100,
+                                    child: Center(
+                                      child: Icon(
+                                        CupertinoIcons.music_note,
+                                        size: 50,
+                                        color: Colors.white,
+                                      ),
                                     ),
+                                  )
+                                : Image.memory(
+                                    media.thumbnail!,
+                                    cacheWidth: 250,
+                                    // Adjust as needed
+                                    cacheHeight: 250,
+                                    filterQuality: FilterQuality.low,
+                                    key: ValueKey<String>(media.id),
+                                    fit: BoxFit.cover,
                                   ),
-                                ),
-                              ),
-                            ),
-
-                            // Video duration label (if media is a video).
-                            if (media.type == MediaType.video)
-                              Align(
-                                alignment: Alignment.bottomRight,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(6),
-                                  child: Text(
-                                    _formatDuration(media.videoDuration),
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 13.5,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      )
-                    : Center(
-                        child: Icon(
-                          Icons.error_outline,
-                          color: Colors.grey.shade400,
-                          size: 40,
+                          ),
                         ),
                       ),
-              ),
+                    ),
+
+                    // Overlay when the tile is selected.
+                    Positioned.fill(
+                      child: AnimatedOpacity(
+                        opacity: isSelected ? 1 : 0,
+                        curve: Curves.easeOut,
+                        duration: _duration,
+                        child: ClipRect(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.black26,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Video duration label (if media is a video).
+                    if (media.type != MediaType.image)
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: Padding(
+                          padding: const EdgeInsets.all(6),
+                          child: Text(
+                            _formatDuration(media.videoDuration),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              )),
 
               // Selection indicator (checkmark or selection index).
               if (isSelected)
@@ -288,7 +296,7 @@ class MediaTile extends StatelessWidget {
               alignment: Alignment.center,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.85),
+                color: Colors.black.withValues(alpha: 0.85),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(

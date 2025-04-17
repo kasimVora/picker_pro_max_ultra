@@ -1,10 +1,16 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:picker_pro_max_ultra/media_picker_widget.dart';
 
-void main() {
+void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   runApp(MyApp());
 }
 
@@ -47,7 +53,12 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: const Text('Image picker demo'),
       ),
-      body: Center(child: Text("Picked or Captured file path is $filePath")),
+      body: Column(
+        children: [
+          Center(child: Text("Picked or Captured file path is $filePath")),
+          if(filePath.isNotEmpty)Image.file(File(filePath),height: 400,width: double.infinity,)
+        ],
+      ),
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         spacing: 10,
@@ -59,7 +70,10 @@ class _MyHomePageState extends State<MyHomePage> {
               MediaPicker(
                       context: context,
                       maxLimit: 5 ?? 1,
-                      mediaType: MediaType.video)
+                      cancelText: "No",
+                      doneText: "Yes",
+                      mediaType: MediaType.image
+              )
                   .showPicker()
                   .then((file) {
                 /// hide loader
@@ -77,6 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: () async {
               MediaPicker(
                 context: context,
+                mediaType: MediaType.audio
               ).picFile().then((file) {
                 /// hide loader
                 if (file != null) {
@@ -93,7 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: () async {
              MediaPicker(
                 context: context,
-              ).capturedFile().then((file) {
+              ).capturedFile(allowRecord: true).then((file) {
                /// hide loader
                if (file != null) {
                  filePath = file.path;
@@ -102,6 +117,27 @@ class _MyHomePageState extends State<MyHomePage> {
              }).catchError((onError) {
                /// hide loader
              });
+            },
+          ),
+          FloatingActionButton(
+            child: const Icon(Icons.music_note),
+            onPressed: () async {
+              /// show loader
+              MediaPicker(
+                  context: context,
+                  maxLimit: 5 ?? 1,
+                  mediaType: MediaType.audio
+              )
+                  .showPicker()
+                  .then((file) {
+                /// hide loader
+                if (file != null) {
+                  filePath = file.first.mediaFile!.path;
+                  setState(() {});
+                }
+              }).catchError((onError) {
+                /// hide loader
+              });
             },
           ),
         ],

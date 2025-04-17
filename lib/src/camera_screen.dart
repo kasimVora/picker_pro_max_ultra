@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import '../doc/document.dart';
 
 /// A screen that provides camera functionality for capturing photos and videos.
 class CameraScreen extends StatefulWidget {
@@ -87,8 +90,11 @@ class _CameraScreenState extends State<CameraScreen>
                             child: InkWell(
                                 highlightColor: Colors.transparent,
                                 splashColor: Colors.transparent,
-                                onTap: () =>
-                                    Navigator.of(context).pop(filePath),
+                                onTap: () async {
+                                  Navigator.of(context).pop(
+                                      await DocumentPicker()
+                                          .compressFile(inputPath: filePath!));
+                                },
                                 child: Icon(
                                   Icons.check,
                                   color: Colors.white,
@@ -469,7 +475,7 @@ class _CameraScreenState extends State<CameraScreen>
       var cFile = await controller?.stopVideoRecording();
       isRecording = false;
       if (cFile != null) {
-        filePath = cFile.path;
+        filePath = File(cFile.path).path;
       }
       setState(() {});
     } else {

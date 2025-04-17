@@ -20,6 +20,9 @@ enum MediaType {
   /// A document file (e.g., PDF, DOCX).
   document,
 
+  /// A audio file (e.g., mp3).
+  audio,
+
   /// An unknown or unsupported media type.
   unknown,
 }
@@ -35,6 +38,12 @@ class MediaPicker {
   /// The type of media that can be picked (image, video, or document).
   final MediaType mediaType;
 
+  /// The text shown on the cancel button in the picker UI.
+  final String cancelText;
+
+  /// The text shown on the done/confirm button in the picker UI.
+  final String doneText;
+
   /// Creates a [MediaPicker] instance.
   ///
   /// - [context]: The [BuildContext] of the screen where the picker is used.
@@ -43,6 +52,8 @@ class MediaPicker {
   MediaPicker({
     required this.context,
     this.maxLimit = 1,
+    this.cancelText = "Cancel",
+    this.doneText = "done",
     this.mediaType = MediaType.image,
   });
 
@@ -53,9 +64,14 @@ class MediaPicker {
   ///
   /// Returns a list of [MediaViewModel] if media is selected, otherwise `null`.
   Future<List<MediaViewModel>?> showPicker() async {
+    assert(!(Platform.isIOS && mediaType == MediaType.audio),
+        'Audio picking is not supported for ios , You can use picFile () by passing MediaType.audio');
+
     if (context.mounted) {
-      return showGridBottomSheet(context, maxLimit, mediaType);
+      return showGridBottomSheet(
+          context, maxLimit, mediaType, cancelText, doneText);
     }
+
     return null;
   }
 
@@ -71,9 +87,11 @@ class MediaPicker {
           builder: (context) => CameraScreen(
                 allowRecord: allowRecord ?? false,
               )),
-    ).then((path) {
+    ).then((path) async {
       if (path != null) {
         capturedPath = File(path);
+        print(
+            " after compress ${(await capturedPath?.length() ?? 0) / 1024} kb");
       }
     }).catchError((e) {
       capturedPath = null;
@@ -86,7 +104,9 @@ class MediaPicker {
   ///
   /// Returns the selected file's path if successful, otherwise `null`.
   Future<File?> picFile() {
-    return DocumentPicker().picFile();
+    assert((mediaType == MediaType.document || mediaType == MediaType.audio),
+        'Only audio and documents are supported as file');
+    return DocumentPicker().picFile(mediaType: mediaType);
   }
 }
 

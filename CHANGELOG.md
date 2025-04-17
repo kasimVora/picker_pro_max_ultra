@@ -1,3 +1,7 @@
+## 2.0.4
+ - Added audio pick functionality through a bottom sheet for Android.
+ - Implemented audio file picking for both Android and iOS.
+
 ## 2.0.3
 - Performance improvement.
 - Image preview , video info

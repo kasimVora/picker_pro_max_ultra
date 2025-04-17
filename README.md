@@ -23,7 +23,8 @@ UI also allow to pick file.
 - 🖼 Pick images & videos from the gallery
 - 📂 Folder-based media browsing
 - 🔁 Multi-selection support
-- 🔁 File pick support
+- 📁 File pick support
+- 🎵 Audio picker (Android only)
 - ⚡ Fast loading with optimized performance
 
 ---
@@ -62,6 +63,7 @@ your `AndroidManifest.xml` (`android/app/src/main/AndroidManifest.xml`):
 <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <!-- Camera Access -->
 <uses-permission android:name="android.permission.CAMERA" />
 ```
