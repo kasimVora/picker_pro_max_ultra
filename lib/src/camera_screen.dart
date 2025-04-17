@@ -32,7 +32,7 @@ class _CameraScreenState extends State<CameraScreen>
   double maxZoomLevel = 0;
   int flashMode = 0, timer = 0;
   int cameIndex = 0;
-  bool isRecording = false, captured = false;
+  bool isRecording = false, captured = false, isHDR = false;
   StreamController<int>? seconds;
   Timer? time;
   String? filePath;
@@ -70,9 +70,37 @@ class _CameraScreenState extends State<CameraScreen>
                           ),
                           flashButton(context),
                           const SizedBox(
-                            height: 20,
+                            height: 15,
                           ),
                           toggleCamera(context),
+                          const SizedBox(
+                            height: 15,
+                          ),
+                          CircleAvatar(
+                            backgroundColor: Colors.black,
+                            radius: 20,
+                            child: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  isHDR = !isHDR;
+
+                                  if (isHDR) {
+                                    startCamera(
+                                        index: cameIndex,
+                                        resolution: ResolutionPreset.ultraHigh);
+                                  } else {
+                                    startCamera(
+                                        index: cameIndex,
+                                        resolution: ResolutionPreset.high);
+                                  }
+                                });
+                              },
+                              icon: Icon(
+                                Icons.hd,
+                                color: isHDR ? Colors.blue : Colors.white,
+                              ),
+                            ),
+                          )
                         ],
                       ),
                     ),
@@ -91,8 +119,12 @@ class _CameraScreenState extends State<CameraScreen>
                                 highlightColor: Colors.transparent,
                                 splashColor: Colors.transparent,
                                 onTap: () async {
-                                  Navigator.of(context).pop(
-                                      await DocumentPicker()
+                                  debugPrint(
+                                      " $isHDR  ${(await File(filePath!).length()) / 1024} kb");
+                                  if (!context.mounted) return;
+                                  Navigator.of(context).pop(isHDR
+                                      ? File(filePath!)
+                                      : await DocumentPicker()
                                           .compressFile(inputPath: filePath!));
                                 },
                                 child: Icon(
@@ -285,7 +317,7 @@ class _CameraScreenState extends State<CameraScreen>
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
       onTap: () {
-        startCamera(cameIndex == 0 ? 1 : 0);
+        startCamera(index: cameIndex == 0 ? 1 : 0);
       },
       child: CircleAvatar(
           backgroundColor: Colors.black,
@@ -389,10 +421,12 @@ class _CameraScreenState extends State<CameraScreen>
     );
   }
 
-  void startCamera(index) async {
+  void startCamera(
+      {int index = 0,
+      ResolutionPreset resolution = ResolutionPreset.high}) async {
     if (filePath == null) {
       CameraController cameraController =
-          CameraController(cameraDes[index], ResolutionPreset.ultraHigh);
+          CameraController(cameraDes[index], resolution);
       await cameraController.initialize().then((value) async {
         double max = await cameraController.getMaxZoomLevel();
 
@@ -491,7 +525,7 @@ class _CameraScreenState extends State<CameraScreen>
   void initCamera() async {
     await availableCameras().then((value) {
       cameraDes = value;
-      startCamera(cameIndex);
+      startCamera(index: cameIndex);
     });
   }
 

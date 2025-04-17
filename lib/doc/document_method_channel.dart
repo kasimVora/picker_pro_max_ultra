@@ -35,8 +35,6 @@ class DocumentMethodChannel extends DocumentPlatform {
     final name = nameParts.sublist(0, nameParts.length - 1).join('.');
     final ext = nameParts.last;
 
-    print(" before compress ${(await File(inputPath).length()) / 1024} kb");
-
     outputPath = '$dir/${name}_compressed.$ext';
     if (outputPath.contains(".temp")) {
       outputPath = outputPath.replaceAll(".temp", ".mp4");
