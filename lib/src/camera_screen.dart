@@ -5,8 +5,11 @@ import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:picker_pro_max_ultra/src/extentions.dart';
 
 import '../doc/document.dart';
+import 'enums.dart';
+import 'filters.dart';
 
 /// A screen that provides camera functionality for capturing photos and videos.
 class CameraScreen extends StatefulWidget {
@@ -32,11 +35,13 @@ class _CameraScreenState extends State<CameraScreen>
   double maxZoomLevel = 0;
   int flashMode = 0, timer = 0;
   int cameIndex = 0;
-  bool isRecording = false, captured = false, isHDR = false;
+  bool isRecording = false, captured = false, isHDR = false , filterVisibility = false;
   StreamController<int>? seconds;
   Timer? time;
   String? filePath;
   Matrix4 rotation = Matrix4.identity();
+  FilterType _selectedFilter = FilterType.normal;
+
 
   @override
   void initState() {
@@ -83,21 +88,31 @@ class _CameraScreenState extends State<CameraScreen>
                               onPressed: () {
                                 setState(() {
                                   isHDR = !isHDR;
-
-                                  if (isHDR) {
-                                    startCamera(
-                                        index: cameIndex,
-                                        resolution: ResolutionPreset.ultraHigh);
-                                  } else {
-                                    startCamera(
-                                        index: cameIndex,
-                                        resolution: ResolutionPreset.high);
-                                  }
+                                  startCamera(
+                                      index: cameIndex,
+                                      resolution:isHDR ?  ResolutionPreset.ultraHigh : ResolutionPreset.high,
+                                  );
                                 });
                               },
                               icon: Icon(
                                 Icons.hd,
                                 color: isHDR ? Colors.blue : Colors.white,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 15,
+                          ),
+                          CircleAvatar(
+                            backgroundColor: Colors.black,
+                            radius: 20,
+                            child: IconButton(
+                              onPressed: () {
+                                toggleFilter();
+                              },
+                              icon: Icon(
+                                Icons.filter_none,
+                                color: filterVisibility ? Colors.blue : Colors.white,
                               ),
                             ),
                           )
@@ -121,6 +136,13 @@ class _CameraScreenState extends State<CameraScreen>
                                 onTap: () async {
                                   debugPrint(
                                       " $isHDR  ${(await File(filePath!).length()) / 1024} kb");
+
+
+                                  filePath = (await Filters().onFilterApplied(_selectedFilter, File(filePath!))).path;
+
+                                  print("Filter path == $filePath");
+
+
                                   if (!context.mounted) return;
                                   Navigator.of(context).pop(isHDR
                                       ? File(filePath!)
@@ -216,7 +238,10 @@ class _CameraScreenState extends State<CameraScreen>
         child: SizedBox(
           width: controller!.value.previewSize!.height,
           height: controller!.value.previewSize!.width,
-          child: CameraPreview(controller!),
+          child: ColorFiltered(
+            colorFilter: _currentFilter,
+              child: CameraPreview(controller!),
+          ),
         ),
       ),
     );
@@ -237,39 +262,89 @@ class _CameraScreenState extends State<CameraScreen>
   }
 
   cameraButtons(BuildContext context) {
-    return Positioned(
+    return Positioned.directional(
       bottom: 0,
+      end:  filterVisibility ? -10 : MediaQuery.sizeOf(context).width / 3.3,
+      textDirection: Directionality.of(context),
       child: SafeArea(
-        child: Center(
-          widthFactor: widget.allowRecord ? 2 : 2.4,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                zoomControl(context),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Row(
-                    spacing: 10,
-                    children: [
-                      typeChip(0),
-                      if (widget.allowRecord) typeChip(1),
-                    ],
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Visibility(
+                visible: filterVisibility,
+                child: SizedBox(
+                  height: 70,
+                  width: MediaQuery.sizeOf(context).width,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: Filters.filterNames.length,
+                    itemBuilder: (context, index) {
+                      FilterType filterType = FilterType.values[index];
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedFilter = filterType;
+                            _currentFilter = Filters.applyFilterColor(filterType);
+                          });
+                        },
+                        child: Container(
+                          width: 60,
+                          height: 60,
+                          margin: const EdgeInsets.symmetric(horizontal: 10),
+                          decoration: BoxDecoration(
+                            color: Filters.filterColors[filterType]?.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: _selectedFilter == filterType ? Colors.black : Colors.white, width: 2),
+                          ),
+                          child: Center(
+                            child: _selectedFilter == filterType
+                                ? Icon(Icons.check, color: Colors.white)
+                                : Container(
+                              padding: EdgeInsets.symmetric(vertical: 3,horizontal: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.black,
+                                borderRadius: BorderRadius.circular(10)
+                              ),
+                                  child: Text(filterType.name.capitalizeFirst(),style:TextStyle(
+                                        color: Colors.white,
+                                    fontSize: 10),
+                                  overflow: TextOverflow.fade,
+                                  maxLines: 1,),
+                                ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
-                const SizedBox(
-                  height: 10,
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              zoomControl(context),
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Row(
+                  spacing: 10,
+                  children: [
+                    typeChip(0),
+                    if (widget.allowRecord) typeChip(1),
+                  ],
                 ),
-                camMode != 0
-                    ? isRecording
-                        ? stopVideoButton()
-                        : startVideoButton(
-                            context: context,
-                          )
-                    : imageButton(),
-              ],
-            ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              camMode != 0
+                  ? isRecording
+                      ? stopVideoButton()
+                      : startVideoButton(
+                          context: context,
+                        )
+                  : imageButton(),
+            ],
           ),
         ),
       ),
@@ -330,9 +405,7 @@ class _CameraScreenState extends State<CameraScreen>
     );
   }
 
-  flashButton(
-    BuildContext context,
-  ) {
+  flashButton(BuildContext context,) {
     return CircleAvatar(
       backgroundColor: Colors.black,
       radius: 20,
@@ -421,9 +494,7 @@ class _CameraScreenState extends State<CameraScreen>
     );
   }
 
-  void startCamera(
-      {int index = 0,
-      ResolutionPreset resolution = ResolutionPreset.high}) async {
+  void startCamera({int index = 0, ResolutionPreset resolution = ResolutionPreset.high}) async {
     if (filePath == null) {
       CameraController cameraController =
           CameraController(cameraDes[index], resolution);
@@ -593,4 +664,20 @@ class _CameraScreenState extends State<CameraScreen>
       initCamera(); // Reinitialize camera when app resumes
     }
   }
+
+  ColorFilter _currentFilter = ColorFilter.mode(
+    Colors.transparent,
+    BlendMode.multiply,
+  );
+
+
+
+
+
+  void toggleFilter(){
+    setState(() {
+      filterVisibility = !filterVisibility;
+    });
+  }
+
 }

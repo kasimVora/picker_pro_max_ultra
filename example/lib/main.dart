@@ -3,7 +3,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:picker_pro_max_ultra/media_picker_widget.dart';
+import 'package:share_plus/share_plus.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -138,6 +140,21 @@ class _MyHomePageState extends State<MyHomePage> {
               }).catchError((onError) {
                 /// hide loader
               });
+            },
+          ),
+          FloatingActionButton(
+            child: const Icon(Icons.share),
+            onPressed: () async {
+
+                // Get temp directory
+
+                // Create a sample text file to share (you can use any file)
+                final file = File(filePath);
+                await file.writeAsString('Hello from Share Plus! 🎉');
+
+                // Share the file
+                await Share.shareXFiles([XFile(file.path)], text: 'Check this file out!');
+
             },
           ),
         ],

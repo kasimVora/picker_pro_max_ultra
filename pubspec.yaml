@@ -12,6 +12,7 @@ dependencies:
   camera: ^0.11.1
   flutter:
     sdk: flutter
+  path_provider: ^2.1.5
   photo_manager: ^3.6.4
   plugin_platform_interface: ^2.0.2
 
