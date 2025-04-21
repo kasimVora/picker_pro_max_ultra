@@ -103,16 +103,19 @@ class _CameraScreenState extends State<CameraScreen>
                           const SizedBox(
                             height: 15,
                           ),
-                          CircleAvatar(
-                            backgroundColor: Colors.black,
-                            radius: 20,
-                            child: IconButton(
-                              onPressed: () {
-                                toggleFilter();
-                              },
-                              icon: Icon(
-                                Icons.filter_none,
-                                color: filterVisibility ? Colors.blue : Colors.white,
+                          Visibility(
+                            visible: false, // todo commented for now
+                            child: CircleAvatar(
+                              backgroundColor: Colors.black,
+                              radius: 20,
+                              child: IconButton(
+                                onPressed: () {
+                                  toggleFilter();
+                                },
+                                icon: Icon(
+                                  Icons.filter_none,
+                                  color: filterVisibility ? Colors.blue : Colors.white,
+                                ),
                               ),
                             ),
                           )
@@ -138,7 +141,7 @@ class _CameraScreenState extends State<CameraScreen>
                                       " $isHDR  ${(await File(filePath!).length()) / 1024} kb");
 
 
-                                  filePath = (await Filters().onFilterApplied(_selectedFilter, File(filePath!))).path;
+                                //  filePath = (await Filters().onFilterApplied(_selectedFilter, File(filePath!))).path;
 
                                   print("Filter path == $filePath");
 
