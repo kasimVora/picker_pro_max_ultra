@@ -1,9 +1,8 @@
-import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:picker_pro_max_ultra/media_picker_widget.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -58,7 +57,8 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         children: [
           Center(child: Text("Picked or Captured file path is $filePath")),
-          if(filePath.isNotEmpty)Image.file(File(filePath),height: 400,width: double.infinity,)
+          if(filePath.isNotEmpty && !kIsWeb) Image.file(File(filePath),height: 400,width: double.infinity,),
+          if(filePath.isNotEmpty && kIsWeb) Image.network(filePath,height: 400,width: double.infinity,)
         ],
       ),
       floatingActionButton: Row(
@@ -68,6 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
           FloatingActionButton(
             child: const Icon(Icons.filter),
             onPressed: () async {
+              print("object");
               /// show loader
               MediaPicker(
                       context: context,
@@ -80,7 +81,31 @@ class _MyHomePageState extends State<MyHomePage> {
                   .then((file) {
                 /// hide loader
                 if (file != null) {
-                  filePath = file.first.mediaFile!.path;
+                  filePath = file.first.path;
+                  setState(() {});
+                }
+              }).catchError((onError) {
+                /// hide loader
+              });
+            },
+          ),
+          FloatingActionButton(
+            child: const Icon(Icons.video_call_sharp),
+            onPressed: () async {
+              print("object");
+              /// show loader
+              MediaPicker(
+                      context: context,
+                      maxLimit: 5 ?? 1,
+                      cancelText: "No",
+                      doneText: "Yes",
+                      mediaType: MediaType.video
+              )
+                  .showPicker()
+                  .then((file) {
+                /// hide loader
+                if (file != null) {
+                  filePath = file.first.path;
                   setState(() {});
                 }
               }).catchError((onError) {
@@ -110,7 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: () async {
              MediaPicker(
                 context: context,
-              ).capturedFile(allowRecord: true).then((file) {
+              ).capturedFile(allowRecord: false).then((file) {
                /// hide loader
                if (file != null) {
                  filePath = file.path;
@@ -121,41 +146,29 @@ class _MyHomePageState extends State<MyHomePage> {
              });
             },
           ),
-          FloatingActionButton(
-            child: const Icon(Icons.music_note),
-            onPressed: () async {
-              /// show loader
-              MediaPicker(
-                  context: context,
-                  maxLimit: 5 ?? 1,
-                  mediaType: MediaType.audio
-              )
-                  .showPicker()
-                  .then((file) {
-                /// hide loader
-                if (file != null) {
-                  filePath = file.first.mediaFile!.path;
-                  setState(() {});
-                }
-              }).catchError((onError) {
-                /// hide loader
-              });
-            },
-          ),
-          FloatingActionButton(
-            child: const Icon(Icons.share),
-            onPressed: () async {
-
-                // Get temp directory
-
-                // Create a sample text file to share (you can use any file)
-                final file = File(filePath);
-                await file.writeAsString('Hello from Share Plus! 🎉');
-
-                // Share the file
-                await Share.shareXFiles([XFile(file.path)], text: 'Check this file out!');
-
-            },
+          Visibility(
+            visible: !Platform.isIOS,
+            child: FloatingActionButton(
+              child: const Icon(Icons.music_note),
+              onPressed: () async {
+                /// show loader
+                MediaPicker(
+                    context: context,
+                    maxLimit: 5 ?? 1,
+                    mediaType: MediaType.audio
+                )
+                    .showPicker()
+                    .then((file) {
+                  /// hide loader
+                  if (file != null) {
+                    filePath = file.first.path;
+                    setState(() {});
+                  }
+                }).catchError((onError) {
+                  /// hide loader
+                });
+              },
+            ),
           ),
         ],
       ),

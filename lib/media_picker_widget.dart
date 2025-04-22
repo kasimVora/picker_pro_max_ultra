@@ -2,12 +2,15 @@ library;
 
 import 'dart:io';
 
+import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:picker_pro_max_ultra/picker_pro_max_ultra.dart';
 import 'package:picker_pro_max_ultra/src/camera_screen.dart';
 import 'package:picker_pro_max_ultra/src/media_manager.dart';
 import 'package:picker_pro_max_ultra/src/media_sheet.dart';
 
-import 'doc/document.dart';
+import 'platform_config.dart';
 
 /// Represents different types of media files.
 enum MediaType {
@@ -63,13 +66,19 @@ class MediaPicker {
   /// to select images or videos.
   ///
   /// Returns a list of [MediaViewModel] if media is selected, otherwise `null`.
-  Future<List<MediaViewModel>?> showPicker() async {
-    assert(!(Platform.isIOS && mediaType == MediaType.audio),
-        'Audio picking is not supported for ios , You can use picFile () by passing MediaType.audio');
+  Future<List<XFile>?> showPicker() async {
 
     if (context.mounted) {
-      return showGridBottomSheet(
-          context, maxLimit, mediaType, cancelText, doneText);
+      if (kIsWeb) {
+        return await WebImplementation(mediaType: mediaType, maxLimit: maxLimit)
+            .pickMultipleImages();
+      } else {
+        if(Platform.isIOS && mediaType == MediaType.audio){
+          throw "Audio picking is not supported for ios , You can use picFile () by passing MediaType.audio";
+        }
+        return showGridBottomSheet(
+            context, maxLimit, mediaType, cancelText, doneText);
+      }
     }
 
     return null;
@@ -104,9 +113,11 @@ class MediaPicker {
   ///
   /// Returns the selected file's path if successful, otherwise `null`.
   Future<File?> picFile() {
-    assert((mediaType == MediaType.document || mediaType == MediaType.audio),
+    assert(
+        !kIsWeb &&
+            (mediaType == MediaType.document || mediaType == MediaType.audio),
         'Only audio and documents are supported as file');
-    return DocumentPicker().picFile(mediaType: mediaType);
+    return PickerProMaxUltra().picFile(mediaType: mediaType);
   }
 }
 

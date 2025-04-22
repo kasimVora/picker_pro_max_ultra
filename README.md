@@ -11,9 +11,14 @@ UI also allow to pick file.
 
 ---
 
-|             | Android | iOS     | Web | Windows | macOS | Linux |
-|-------------|---------|---------|-----|---------|-------|-------|
-| **Support** | SDK 21+ | iOS 12+ | ❌   | ❌       | ❌     | ❌     |
+| Feature          | Android | iOS | Web | Windows | macOS | Linux |
+|------------------|---------|-----|-----|---------|-------|-------|
+| Image Picker     | ✅       | ✅   | ✅   | ❌       | ❌     | ❌     |
+| Video Picker     | ✅       | ✅   | ✅   | ❌       | ❌     | ❌     |
+| Document Picker  | ✅       | ✅   | ✅   | ❌       | ❌     | ❌     |
+| Audio Picker     | ✅       | ❌   | ✅   | ❌       | ❌     | ❌     |
+| Camera (Capture) | ✅       | ✅   | ❌   | ❌       | ❌     | ❌     |
+
 
 ---
 

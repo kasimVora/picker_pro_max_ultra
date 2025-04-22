@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 
@@ -17,9 +18,9 @@ import 'media_tile.dart';
 ///
 /// [context] - The [BuildContext] to show the bottom sheet in.
 /// [maxLimit] - The maximum number of media items the user can select.
-Future<List<MediaViewModel>?> showGridBottomSheet(BuildContext context,
-    int maxLimit, MediaType type, String cancelText, String doneText) {
-  return showModalBottomSheet<List<MediaViewModel>?>(
+Future<List<XFile>?> showGridBottomSheet(BuildContext context, int maxLimit,
+    MediaType type, String cancelText, String doneText) {
+  return showModalBottomSheet<List<XFile>?>(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent, // Important for custom design
@@ -343,7 +344,9 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
                       onSelected: (_) {
                         onFileSelect(media);
                         if (widget.maxLimit == 1) {
-                          Navigator.pop(context, [media]);
+                          Navigator.pop(context, [
+                            XFile.fromData(media.mediaFile!.readAsBytesSync())
+                          ]);
                         }
                         setState(() {});
                       },
@@ -387,8 +390,13 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.pop(context,
-                            selectedFiles.isNotEmpty ? selectedFiles : null);
+                        Navigator.pop(
+                            context,
+                            selectedFiles.isNotEmpty
+                                ? selectedFiles
+                                    .map((f) => XFile(f.mediaFile!.path))
+                                    .toList()
+                                : null);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).primaryColor,

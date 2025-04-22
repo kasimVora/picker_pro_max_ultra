@@ -1,13 +1,14 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-import '../media_picker_widget.dart';
-import 'document_platform_interface.dart';
+import 'media_picker_widget.dart';
+import 'picker_pro_max_ultra_platform_interface.dart';
 
-/// An implementation of [DocumentPlatform] that uses method channels.
-class DocumentMethodChannel extends DocumentPlatform {
+/// An implementation of [PickerProMaxUltraPlatform] that uses method channels.
+class MethodChannelPickerProMaxUltra extends PickerProMaxUltraPlatform {
   /// The method channel used to interact with the native platform.
   @visibleForTesting
   final methodChannel = const MethodChannel('untitled2');

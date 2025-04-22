@@ -1,3 +1,6 @@
+## 2.0.5
+- added web support for photo,documents,audio,video from storage.
+
 ## 2.0.4
  - Added audio pick functionality through a bottom sheet for Android.
  - Implemented audio file picking for both Android and iOS.
