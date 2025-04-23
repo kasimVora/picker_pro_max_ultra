@@ -14,8 +14,11 @@ dependencies:
     sdk: flutter
   path_provider: ^2.1.5
   photo_manager: ^3.6.4
-
+  flutter_web_plugins:
+    sdk: flutter
+  web: ^1.0.0
   plugin_platform_interface: ^2.0.2
+  cross_file: ^0.3.4+2
 
 dev_dependencies:
   flutter_test:
