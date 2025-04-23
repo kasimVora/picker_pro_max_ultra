@@ -1,10 +1,8 @@
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:picker_pro_max_ultra/media_picker_widget.dart';
-import 'package:share_plus/share_plus.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         children: [
           Center(child: Text("Picked or Captured file path is $filePath")),
-          if(filePath.isNotEmpty && !kIsWeb) Image.file(File(filePath),height: 400,width: double.infinity,),
+          //if(filePath.isNotEmpty && !kIsWeb) Image.file(File(filePath),height: 400,width: double.infinity,),
           if(filePath.isNotEmpty && kIsWeb) Image.network(filePath,height: 400,width: double.infinity,)
         ],
       ),
@@ -92,7 +90,6 @@ class _MyHomePageState extends State<MyHomePage> {
           FloatingActionButton(
             child: const Icon(Icons.video_call_sharp),
             onPressed: () async {
-              print("object");
               /// show loader
               MediaPicker(
                       context: context,
@@ -146,29 +143,26 @@ class _MyHomePageState extends State<MyHomePage> {
              });
             },
           ),
-          Visibility(
-            visible: !Platform.isIOS,
-            child: FloatingActionButton(
-              child: const Icon(Icons.music_note),
-              onPressed: () async {
-                /// show loader
-                MediaPicker(
-                    context: context,
-                    maxLimit: 5 ?? 1,
-                    mediaType: MediaType.audio
-                )
-                    .showPicker()
-                    .then((file) {
-                  /// hide loader
-                  if (file != null) {
-                    filePath = file.first.path;
-                    setState(() {});
-                  }
-                }).catchError((onError) {
-                  /// hide loader
-                });
-              },
-            ),
+          FloatingActionButton(
+            child: const Icon(Icons.music_note),
+            onPressed: () async {
+              /// show loader
+              MediaPicker(
+                  context: context,
+                  maxLimit: 5 ?? 1,
+                  mediaType: MediaType.audio
+              )
+                  .showPicker()
+                  .then((file) {
+                /// hide loader
+                if (file != null) {
+                  filePath = file.first.path;
+                  setState(() {});
+                }
+              }).catchError((onError) {
+                /// hide loader
+              });
+            },
           ),
         ],
       ),

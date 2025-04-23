@@ -1,6 +1,6 @@
 name: picker_pro_max_ultra
 description: Advanced media picker for Flutter with support for images, videos, camera capture, documents, and multi-selection.
-version: 2.0.5
+version: 2.0.6
 repository: https://github.com/kasimVora/picker_pro_max_ultra.git
 homepage: https://github.com/kasimVora/picker_pro_max_ultra
 
@@ -14,11 +14,8 @@ dependencies:
     sdk: flutter
   path_provider: ^2.1.5
   photo_manager: ^3.6.4
-  flutter_web_plugins:
-    sdk: flutter
-  web: ^1.0.0
+
   plugin_platform_interface: ^2.0.2
-  cross_file: ^0.3.4+2
 
 dev_dependencies:
   flutter_test:

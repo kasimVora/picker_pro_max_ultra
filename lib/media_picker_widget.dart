@@ -90,6 +90,9 @@ class MediaPicker {
   /// Returns the file path if successful, otherwise returns `null`.
   Future<File?> capturedFile({bool? allowRecord}) async {
     File? capturedPath;
+    if(kIsWeb){
+      throw "Camera is not supported for web";
+    }
     await Navigator.push(
       context,
       MaterialPageRoute(

@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:html' as html;
+import 'package:web/web.dart' as html;
 import 'dart:typed_data';
 
 import 'package:cross_file/cross_file.dart';
@@ -35,69 +35,46 @@ class WebImplementation extends PickerProMaxUltraPlatform {
   /// Returns a [List] of [XFile] objects based on the selected files.
   Future<List<XFile>> pickMultipleImages() async {
     final completer = Completer<List<XFile>>();
-    final html.FileUploadInputElement uploadInput =
-        html.FileUploadInputElement();
+    final input = html.HTMLInputElement();
 
-    // Set accepted file types based on mediaType
-    if (mediaType == MediaType.audio) {
-      uploadInput.accept = [
-        '.mp3',
-        '.wav',
-        '.aac',
-        '.m4a',
-        '.ogg',
-        '.oga',
-        '.flac',
-        '.wma',
-        '.amr',
-        '.aiff',
-        '.opus',
-        '.webm'
-      ].join(',');
-    } else if (mediaType == MediaType.document) {
-      uploadInput.accept = [
-        '.pdf',
-        '.doc',
-        '.docx',
-        '.xls',
-        '.xlsx',
-        '.ppt',
-        '.pptx',
-        '.txt',
-        '.rtf',
-        '.csv',
-      ].join(',');
-    } else if (mediaType == MediaType.video) {
-      uploadInput.accept = 'video/*';
-    } else {
-      uploadInput.accept = 'image/*';
-    }
+    input.type = 'file';
+    input.multiple = maxLimit > 0;
 
-    uploadInput.multiple = maxLimit > 0;
-    uploadInput.click();
+    // Accept types based on MediaType
+    input.accept = switch (mediaType) {
+      MediaType.audio => [
+        '.mp3', '.wav', '.aac', '.m4a', '.ogg', '.oga',
+        '.flac', '.wma', '.amr', '.aiff', '.opus', '.webm'
+      ].join(','),
+      MediaType.document => [
+        '.pdf', '.doc', '.docx', '.xls', '.xlsx',
+        '.ppt', '.pptx', '.txt', '.rtf', '.csv',
+      ].join(','),
+      MediaType.video => 'video/*',
+      _ => 'image/*',
+    };
 
-    uploadInput.onChange.listen((event) async {
-      final files = uploadInput.files;
-      if (files != null && files.isNotEmpty) {
-        List<XFile> xFiles = [];
+    input.click();
 
-        for (final file in files.take(maxLimit)) {
+    input.onChange.listen((event) async {
+      final files = input.files;
+      if (files != null && files.length > 0) {
+        final List<XFile> xFiles = [];
+
+        for (int i = 0; i < files.length && i < maxLimit; i++){
           final reader = html.FileReader();
           final readCompleter = Completer<XFile>();
-
-          reader.readAsArrayBuffer(file);
-          reader.onLoadEnd.listen((event) {
-            final data = reader.result as Uint8List;
-
+          reader.readAsArrayBuffer(files.item(i) as html.Blob);
+          reader.onLoadEnd.listen((_) {
+            final data = reader.result as ByteBuffer;
             final xFile = XFile.fromData(
-              data,
-              name: file.name,
-              mimeType: file.type,
-              lastModified: file.lastModified != null
-                  ? DateTime.fromMillisecondsSinceEpoch(file.lastModified!)
+              Uint8List.view(data),
+              name: files.item(i)?.name ?? "Undefined",
+              mimeType: files.item(i)?.type ?? "Undefined",
+              lastModified: files.item(i)?.lastModified != null
+                  ? DateTime.fromMillisecondsSinceEpoch(files.item(i)!.lastModified)
                   : null,
             );
-
             readCompleter.complete(xFile);
           });
 
