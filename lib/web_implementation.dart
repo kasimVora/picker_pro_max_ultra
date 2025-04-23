@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'package:web/web.dart' as html;
 import 'dart:typed_data';
 
 import 'package:cross_file/cross_file.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'package:web/web.dart' as html;
 
 import 'media_picker_widget.dart';
 import 'picker_pro_max_ultra_platform_interface.dart';
@@ -43,13 +43,31 @@ class WebImplementation extends PickerProMaxUltraPlatform {
     // Accept types based on MediaType
     input.accept = switch (mediaType) {
       MediaType.audio => [
-        '.mp3', '.wav', '.aac', '.m4a', '.ogg', '.oga',
-        '.flac', '.wma', '.amr', '.aiff', '.opus', '.webm'
-      ].join(','),
+          '.mp3',
+          '.wav',
+          '.aac',
+          '.m4a',
+          '.ogg',
+          '.oga',
+          '.flac',
+          '.wma',
+          '.amr',
+          '.aiff',
+          '.opus',
+          '.webm'
+        ].join(','),
       MediaType.document => [
-        '.pdf', '.doc', '.docx', '.xls', '.xlsx',
-        '.ppt', '.pptx', '.txt', '.rtf', '.csv',
-      ].join(','),
+          '.pdf',
+          '.doc',
+          '.docx',
+          '.xls',
+          '.xlsx',
+          '.ppt',
+          '.pptx',
+          '.txt',
+          '.rtf',
+          '.csv',
+        ].join(','),
       MediaType.video => 'video/*',
       _ => 'image/*',
     };
@@ -61,7 +79,7 @@ class WebImplementation extends PickerProMaxUltraPlatform {
       if (files != null && files.length > 0) {
         final List<XFile> xFiles = [];
 
-        for (int i = 0; i < files.length && i < maxLimit; i++){
+        for (int i = 0; i < files.length && i < maxLimit; i++) {
           final reader = html.FileReader();
           final readCompleter = Completer<XFile>();
           reader.readAsArrayBuffer(files.item(i) as html.Blob);
@@ -72,7 +90,8 @@ class WebImplementation extends PickerProMaxUltraPlatform {
               name: files.item(i)?.name ?? "Undefined",
               mimeType: files.item(i)?.type ?? "Undefined",
               lastModified: files.item(i)?.lastModified != null
-                  ? DateTime.fromMillisecondsSinceEpoch(files.item(i)!.lastModified)
+                  ? DateTime.fromMillisecondsSinceEpoch(
+                      files.item(i)!.lastModified)
                   : null,
             );
             readCompleter.complete(xFile);

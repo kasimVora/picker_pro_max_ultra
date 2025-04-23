@@ -67,13 +67,12 @@ class MediaPicker {
   ///
   /// Returns a list of [MediaViewModel] if media is selected, otherwise `null`.
   Future<List<XFile>?> showPicker() async {
-
     if (context.mounted) {
       if (kIsWeb) {
         return await WebImplementation(mediaType: mediaType, maxLimit: maxLimit)
             .pickMultipleImages();
       } else {
-        if(Platform.isIOS && mediaType == MediaType.audio){
+        if (Platform.isIOS && mediaType == MediaType.audio) {
           throw "Audio picking is not supported for ios , You can use picFile () by passing MediaType.audio";
         }
         return showGridBottomSheet(
@@ -90,7 +89,7 @@ class MediaPicker {
   /// Returns the file path if successful, otherwise returns `null`.
   Future<File?> capturedFile({bool? allowRecord}) async {
     File? capturedPath;
-    if(kIsWeb){
+    if (kIsWeb) {
       throw "Camera is not supported for web";
     }
     await Navigator.push(
