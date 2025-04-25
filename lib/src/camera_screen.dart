@@ -142,8 +142,6 @@ class _CameraScreenState extends State<CameraScreen>
                                   debugPrint(
                                       " $isHDR  ${(await File(filePath!).length()) / 1024} kb");
 
-                                  print("Filter path == $filePath");
-
                                   if (!context.mounted) return;
                                   Navigator.of(context).pop(isHDR
                                       ? File(filePath!)

@@ -79,7 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   .then((file) {
                 /// hide loader
                 if (file != null) {
-                  filePath = file.first.path;
+                  filePath = file.first;
                   setState(() {});
                 }
               }).catchError((onError) {
@@ -102,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   .then((file) {
                 /// hide loader
                 if (file != null) {
-                  filePath = file.first.path;
+                  filePath = file.first;
                   setState(() {});
                 }
               }).catchError((onError) {
@@ -156,7 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   .then((file) {
                 /// hide loader
                 if (file != null) {
-                  filePath = file.first.path;
+                  filePath = file.first;
                   setState(() {});
                 }
               }).catchError((onError) {

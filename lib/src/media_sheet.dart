@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 
@@ -18,9 +17,9 @@ import 'media_tile.dart';
 ///
 /// [context] - The [BuildContext] to show the bottom sheet in.
 /// [maxLimit] - The maximum number of media items the user can select.
-Future<List<XFile>?> showGridBottomSheet(BuildContext context, int maxLimit,
+Future<List<String>?> showGridBottomSheet(BuildContext context, int maxLimit,
     MediaType type, String cancelText, String doneText) {
-  return showModalBottomSheet<List<XFile>?>(
+  return showModalBottomSheet<List<String>?>(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent, // Important for custom design
@@ -344,9 +343,7 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
                       onSelected: (_) {
                         onFileSelect(media);
                         if (widget.maxLimit == 1) {
-                          Navigator.pop(context, [
-                            XFile.fromData(media.mediaFile!.readAsBytesSync())
-                          ]);
+                          Navigator.pop(context, [media.mediaFile?.path]);
                         }
                         setState(() {});
                       },
@@ -394,7 +391,7 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
                             context,
                             selectedFiles.isNotEmpty
                                 ? selectedFiles
-                                    .map((f) => XFile(f.mediaFile!.path))
+                                    .map((f) => f.mediaFile!.path)
                                     .toList()
                                 : null);
                       },

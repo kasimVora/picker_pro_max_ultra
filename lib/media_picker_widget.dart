@@ -2,7 +2,6 @@ library;
 
 import 'dart:io';
 
-import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:picker_pro_max_ultra/picker_pro_max_ultra.dart';
@@ -66,7 +65,7 @@ class MediaPicker {
   /// to select images or videos.
   ///
   /// Returns a list of [MediaViewModel] if media is selected, otherwise `null`.
-  Future<List<XFile>?> showPicker() async {
+  Future<List<String>?> showPicker() async {
     if (context.mounted) {
       if (kIsWeb) {
         return await WebImplementation(mediaType: mediaType, maxLimit: maxLimit)

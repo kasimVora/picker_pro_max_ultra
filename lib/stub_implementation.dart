@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:cross_file/cross_file.dart';
-
 import 'media_picker_widget.dart';
 import 'picker_pro_max_ultra_platform_interface.dart';
 
@@ -23,7 +21,7 @@ class WebImplementation implements PickerProMaxUltraPlatform {
   final MediaType mediaType;
 
   /// Unsupported on non-web platforms. Throws [UnsupportedError].
-  Future<List<XFile>?> pickMultipleImages() async {
+  Future<List<String>?> pickMultipleImages() async {
     throw UnsupportedError('Web picker is only supported on the web platform.');
   }
 

@@ -12,9 +12,6 @@ class MockPickerProMaxUltraPlatform
     implements PickerProMaxUltraPlatform {
 
   @override
-  Future<String?> getPlatformVersion() => Future.value('42');
-
-  @override
   Future<String?> compressFile({required String inputPath}) {
     // TODO: implement compressFile
     throw UnimplementedError();

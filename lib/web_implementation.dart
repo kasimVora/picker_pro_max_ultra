@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:typed_data';
+import 'dart:html' as html;
 
-import 'package:cross_file/cross_file.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
-import 'package:web/web.dart' as html;
 
 import 'media_picker_widget.dart';
 import 'picker_pro_max_ultra_platform_interface.dart';
@@ -32,17 +30,44 @@ class WebImplementation extends PickerProMaxUltraPlatform {
 
   /// Opens the browser's file picker for selecting multiple media files.
   ///
-  /// Returns a [List] of [XFile] objects based on the selected files.
-  Future<List<XFile>> pickMultipleImages() async {
-    final completer = Completer<List<XFile>>();
-    final input = html.HTMLInputElement();
+  /// Returns a [List] of [String] objects based on the selected files.
+  Future<List<String>> pickMultipleImages() async {
+    final completer = Completer<List<String>>();
+    final input = html.FileUploadInputElement();
 
-    input.type = 'file';
-    input.multiple = maxLimit > 0;
+    input.multiple = maxLimit > 1;
+    input.accept = _getAcceptMimeTypes();
 
-    // Accept types based on MediaType
-    input.accept = switch (mediaType) {
-      MediaType.audio => [
+    input.click();
+
+    input.onChange.listen((event) {
+      final files = input.files;
+      if (files == null || files.isEmpty) {
+        completer.complete([]);
+        return;
+      }
+
+      final List<String> fileUrls = [];
+
+      if (fileUrls.isNotEmpty) {
+        for (var i = 0; i < files.length && i < maxLimit; i++) {
+          final file = files[i];
+          // Create a blob URL (temporary object URL for browser use)
+          final url = html.Url.createObjectUrl(file);
+          fileUrls.add(url);
+        }
+      }
+      completer.complete(fileUrls);
+    });
+
+    return completer.future;
+  }
+
+  /// Returns the accepted MIME types based on [mediaType].
+  String _getAcceptMimeTypes() {
+    switch (mediaType) {
+      case MediaType.audio:
+        return [
           '.mp3',
           '.wav',
           '.aac',
@@ -55,8 +80,9 @@ class WebImplementation extends PickerProMaxUltraPlatform {
           '.aiff',
           '.opus',
           '.webm'
-        ].join(','),
-      MediaType.document => [
+        ].join(',');
+      case MediaType.document:
+        return [
           '.pdf',
           '.doc',
           '.docx',
@@ -66,46 +92,13 @@ class WebImplementation extends PickerProMaxUltraPlatform {
           '.pptx',
           '.txt',
           '.rtf',
-          '.csv',
-        ].join(','),
-      MediaType.video => 'video/*',
-      _ => 'image/*',
-    };
-
-    input.click();
-
-    input.onChange.listen((event) async {
-      final files = input.files;
-      if (files != null && files.length > 0) {
-        final List<XFile> xFiles = [];
-
-        for (int i = 0; i < files.length && i < maxLimit; i++) {
-          final reader = html.FileReader();
-          final readCompleter = Completer<XFile>();
-          reader.readAsArrayBuffer(files.item(i) as html.Blob);
-          reader.onLoadEnd.listen((_) {
-            final data = reader.result as ByteBuffer;
-            final xFile = XFile.fromData(
-              Uint8List.view(data),
-              name: files.item(i)?.name ?? "Undefined",
-              mimeType: files.item(i)?.type ?? "Undefined",
-              lastModified: files.item(i)?.lastModified != null
-                  ? DateTime.fromMillisecondsSinceEpoch(
-                      files.item(i)!.lastModified)
-                  : null,
-            );
-            readCompleter.complete(xFile);
-          });
-
-          xFiles.add(await readCompleter.future);
-        }
-
-        completer.complete(xFiles);
-      } else {
-        completer.complete([]);
-      }
-    });
-
-    return completer.future;
+          '.csv'
+        ].join(',');
+      case MediaType.video:
+        return 'video/*';
+      case MediaType.image:
+      default:
+        return 'image/*';
+    }
   }
 }
