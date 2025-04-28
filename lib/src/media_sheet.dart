@@ -17,12 +17,17 @@ import 'media_tile.dart';
 ///
 /// [context] - The [BuildContext] to show the bottom sheet in.
 /// [maxLimit] - The maximum number of media items the user can select.
-Future<List<String>?> showGridBottomSheet(BuildContext context, int maxLimit,
-    MediaType type, String cancelText, String doneText) {
-  return showModalBottomSheet<List<String>?>(
+Future<List<String>> showGridBottomSheet(
+    BuildContext context,
+    int maxLimit,
+    MediaType type,
+    String cancelText,
+    String doneText,
+    ) async {
+  final result = await showModalBottomSheet<List<String>>(
     context: context,
     isScrollControlled: true,
-    backgroundColor: Colors.transparent, // Important for custom design
+    backgroundColor: Colors.transparent,
     builder: (context) {
       return ClipRRect(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
@@ -32,7 +37,7 @@ Future<List<String>?> showGridBottomSheet(BuildContext context, int maxLimit,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.15),
+                color: Colors.black.withOpacity(0.15),
                 blurRadius: 15,
                 spreadRadius: 5,
               )
@@ -59,7 +64,10 @@ Future<List<String>?> showGridBottomSheet(BuildContext context, int maxLimit,
       );
     },
   );
+
+  return result ?? [];
 }
+
 
 /// A widget that displays a media picker inside a bottom sheet with folder tabs,
 /// a scrollable grid of media assets, and a selectable UI.
@@ -315,8 +323,7 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
             visible: mediaFiles.isNotEmpty,
             replacement: Expanded(
               child: Center(
-                child: Text(
-                    "No ${widget.mediaType.name} file found on this device"),
+                child: Text("No ${widget.mediaType.name} file found on this device"),
               ),
             ),
             child: Expanded(
@@ -343,7 +350,7 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
                       onSelected: (_) {
                         onFileSelect(media);
                         if (widget.maxLimit == 1) {
-                          Navigator.pop(context, [media.mediaFile?.path]);
+                          Navigator.pop(context, [media.mediaFile?.path ?? ""]);
                         }
                         setState(() {});
                       },
@@ -370,36 +377,47 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
             child: Padding(
               padding: const EdgeInsets.only(top: 12.0, left: 10, right: 10),
               child: Row(
+                spacing: 12,
                 children: [
+
                   Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context, null),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Theme.of(context).primaryColor,
-                        side: BorderSide(
-                          color: Theme.of(context).primaryColor,
+                    child: InkWell(
+                    onTap: () => Navigator.pop(context, <String>[]),
+                      child: Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: Colors.white,
+                          border: Border.all(
+                            color:  Theme.of(context).primaryColor
+                          )
                         ),
+                        child: Center(child: Text(widget.cancelText,)),
                       ),
-                      child: Text(widget.cancelText),
                     ),
                   ),
-                  const SizedBox(width: 12),
+
+
                   Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
+                    child: InkWell(
+                      onTap: () {
                         Navigator.pop(
                             context,
                             selectedFiles.isNotEmpty
                                 ? selectedFiles
-                                    .map((f) => f.mediaFile!.path)
-                                    .toList()
-                                : null);
+                                .map((f) => f.mediaFile?.path ?? "")
+                                .toList()
+                                :  <String>[]);
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).primaryColor,
-                        foregroundColor: Colors.white,
+                      child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color:  Theme.of(context).primaryColor
+                        ),
+                        height: 40,
+                        padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+                        child: Center(child: Text(widget.doneText,)),
                       ),
-                      child: Text(widget.doneText),
                     ),
                   ),
                 ],

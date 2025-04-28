@@ -78,7 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   .showPicker()
                   .then((file) {
                 /// hide loader
-                if (file != null) {
+                if (file.isNotEmpty) {
                   filePath = file.first;
                   setState(() {});
                 }
@@ -101,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   .showPicker()
                   .then((file) {
                 /// hide loader
-                if (file != null) {
+                if (file.isNotEmpty) {
                   filePath = file.first;
                   setState(() {});
                 }
@@ -155,7 +155,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   .showPicker()
                   .then((file) {
                 /// hide loader
-                if (file != null) {
+                if (file.isNotEmpty) {
                   filePath = file.first;
                   setState(() {});
                 }

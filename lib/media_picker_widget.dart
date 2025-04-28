@@ -65,11 +65,12 @@ class MediaPicker {
   /// to select images or videos.
   ///
   /// Returns a list of [MediaViewModel] if media is selected, otherwise `null`.
-  Future<List<String>?> showPicker() async {
+  Future<List<String>> showPicker() async {
     if (context.mounted) {
       if (kIsWeb) {
         return await WebImplementation(mediaType: mediaType, maxLimit: maxLimit)
-            .pickMultipleImages();
+                .pickMultipleImages() ??
+            [];
       } else {
         if (Platform.isIOS && mediaType == MediaType.audio) {
           throw "Audio picking is not supported for ios , You can use picFile () by passing MediaType.audio";
@@ -79,7 +80,7 @@ class MediaPicker {
       }
     }
 
-    return null;
+    return [];
   }
 
   /// Opens the camera screen and returns the captured file path.
