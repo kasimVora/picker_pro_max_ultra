@@ -49,14 +49,14 @@ class WebImplementation extends PickerProMaxUltraPlatform {
 
       final List<String> fileUrls = [];
 
-      if (fileUrls.isNotEmpty) {
+
         for (var i = 0; i < files.length && i < maxLimit; i++) {
           final file = files[i];
           // Create a blob URL (temporary object URL for browser use)
           final url = html.Url.createObjectUrl(file);
           fileUrls.add(url);
         }
-      }
+
       completer.complete(fileUrls);
     });
 

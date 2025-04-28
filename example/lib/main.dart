@@ -66,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
           FloatingActionButton(
             child: const Icon(Icons.filter),
             onPressed: () async {
-              print("object");
+
               /// show loader
               MediaPicker(
                       context: context,
@@ -77,6 +77,9 @@ class _MyHomePageState extends State<MyHomePage> {
               )
                   .showPicker()
                   .then((file) {
+
+                    print("file");
+                    print(file);
                 /// hide loader
                 if (file.isNotEmpty) {
                   filePath = file.first;
