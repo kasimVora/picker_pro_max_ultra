@@ -18,12 +18,12 @@ import 'media_tile.dart';
 /// [context] - The [BuildContext] to show the bottom sheet in.
 /// [maxLimit] - The maximum number of media items the user can select.
 Future<List<String>> showGridBottomSheet(
-    BuildContext context,
-    int maxLimit,
-    MediaType type,
-    String cancelText,
-    String doneText,
-    ) async {
+  BuildContext context,
+  int maxLimit,
+  MediaType type,
+  String cancelText,
+  String doneText,
+) async {
   final result = await showModalBottomSheet<List<String>>(
     context: context,
     isScrollControlled: true,
@@ -37,7 +37,7 @@ Future<List<String>> showGridBottomSheet(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.15),
+                color: Colors.black.withValues(alpha: 0.15),
                 blurRadius: 15,
                 spreadRadius: 5,
               )
@@ -67,7 +67,6 @@ Future<List<String>> showGridBottomSheet(
 
   return result ?? [];
 }
-
 
 /// A widget that displays a media picker inside a bottom sheet with folder tabs,
 /// a scrollable grid of media assets, and a selectable UI.
@@ -323,7 +322,8 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
             visible: mediaFiles.isNotEmpty,
             replacement: Expanded(
               child: Center(
-                child: Text("No ${widget.mediaType.name} file found on this device"),
+                child: Text(
+                    "No ${widget.mediaType.name} file found on this device"),
               ),
             ),
             child: Expanded(
@@ -379,25 +379,23 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
               child: Row(
                 spacing: 12,
                 children: [
-
                   Expanded(
                     child: InkWell(
-                    onTap: () => Navigator.pop(context, <String>[]),
+                      onTap: () => Navigator.pop(context, <String>[]),
                       child: Container(
                         height: 40,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: Colors.white,
-                          border: Border.all(
-                            color:  Theme.of(context).primaryColor
-                          )
-                        ),
-                        child: Center(child: Text(widget.cancelText,)),
+                            borderRadius: BorderRadius.circular(20),
+                            color: Colors.white,
+                            border: Border.all(
+                                color: Theme.of(context).primaryColor)),
+                        child: Center(
+                            child: Text(
+                          widget.cancelText,
+                        )),
                       ),
                     ),
                   ),
-
-
                   Expanded(
                     child: InkWell(
                       onTap: () {
@@ -405,18 +403,21 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
                             context,
                             selectedFiles.isNotEmpty
                                 ? selectedFiles
-                                .map((f) => f.mediaFile?.path ?? "")
-                                .toList()
-                                :  <String>[]);
+                                    .map((f) => f.mediaFile?.path ?? "")
+                                    .toList()
+                                : <String>[]);
                       },
                       child: Container(
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
-                            color:  Theme.of(context).primaryColor
-                        ),
+                            color: Theme.of(context).primaryColor),
                         height: 40,
-                        padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
-                        child: Center(child: Text(widget.doneText,)),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                        child: Center(
+                            child: Text(
+                          widget.doneText,
+                        )),
                       ),
                     ),
                   ),

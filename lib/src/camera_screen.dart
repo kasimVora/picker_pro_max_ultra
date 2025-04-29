@@ -141,7 +141,7 @@ class _CameraScreenState extends State<CameraScreen>
                                 onTap: () async {
                                   debugPrint(
                                       " $isHDR  ${(await File(filePath!).length()) / 1024} kb");
-
+                                  print("Filter path == $filePath");
                                   if (!context.mounted) return;
                                   Navigator.of(context).pop(isHDR
                                       ? File(filePath!)
@@ -274,7 +274,7 @@ class _CameraScreenState extends State<CameraScreen>
                 child: Row(
                   spacing: 10,
                   children: [
-                    typeChip(0),
+                    if (!widget.allowRecord) typeChip(0),
                     if (widget.allowRecord) typeChip(1),
                   ],
                 ),
@@ -454,6 +454,7 @@ class _CameraScreenState extends State<CameraScreen>
         await cameraController.setFlashMode(FlashMode.off);
 
         setState(() {
+          camMode = widget.allowRecord ? 1 : 0;
           controller = cameraController;
           scale = min;
           cameIndex = index;

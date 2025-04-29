@@ -22,224 +22,282 @@ import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import androidx.exifinterface.media.ExifInterface
 
-class PickerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegistry.ActivityResultListener {
 
-  private lateinit var channel: MethodChannel
-  private var activity: Activity? = null
-  private var pendingResult: Result? = null
+class PickerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
+    PluginRegistry.ActivityResultListener {
 
-  override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-    Log.d("PickerPlugin", "Attached to engine")
-    channel = MethodChannel(binding.binaryMessenger, "untitled2")
-    channel.setMethodCallHandler(this)
-  }
+    private lateinit var channel: MethodChannel
+    private var activity: Activity? = null
+    private var pendingResult: Result? = null
 
-  override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-    Log.d("PickerPlugin", "Detached from engine")
-    channel.setMethodCallHandler(null)
-  }
+    override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        Log.d("PickerPlugin", "Attached to engine")
+        channel = MethodChannel(binding.binaryMessenger, "untitled2")
+        channel.setMethodCallHandler(this)
+    }
 
-  override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-    Log.d("PickerPlugin", "Attached to activity")
-    activity = binding.activity
-    binding.addActivityResultListener(this)
-  }
+    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        Log.d("PickerPlugin", "Detached from engine")
+        channel.setMethodCallHandler(null)
+    }
 
-  override fun onDetachedFromActivity() {
-    Log.d("PickerPlugin", "Detached from activity")
-    activity = null
-  }
+    override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+        Log.d("PickerPlugin", "Attached to activity")
+        activity = binding.activity
+        binding.addActivityResultListener(this)
+    }
 
-  override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
-    Log.d("PickerPlugin", "Reattached to activity after config change")
-    activity = binding.activity
-    binding.addActivityResultListener(this)
-  }
+    override fun onDetachedFromActivity() {
+        Log.d("PickerPlugin", "Detached from activity")
+        activity = null
+    }
 
-  override fun onDetachedFromActivityForConfigChanges() {
-    Log.d("PickerPlugin", "Detached from activity for config change")
-    activity = null
-  }
+    override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+        Log.d("PickerPlugin", "Reattached to activity after config change")
+        activity = binding.activity
+        binding.addActivityResultListener(this)
+    }
 
-  override fun onMethodCall(call: MethodCall, result: Result) {
-    Log.d("PickerPlugin", "Method called: ${call.method}")
+    override fun onDetachedFromActivityForConfigChanges() {
+        Log.d("PickerPlugin", "Detached from activity for config change")
+        activity = null
+    }
 
-    when (call.method) {
-      "getDoc" -> {
-        if (activity == null) {
-          Log.e("PickerPlugin", "No activity attached")
-          result.error("NO_ACTIVITY", "Plugin not attached to an activity", null)
-          return
-        }
+    override fun onMethodCall(call: MethodCall, result: Result) {
+        Log.d("PickerPlugin", "Method called: ${call.method}")
 
-        val mediaType = call.argument<String>("mediaType") ?: "document"
-        val limit = call.argument<Int>("limit") ?: 1
-        Log.d("PickerPlugin", "getMedia - mediaType: $mediaType, limit: $limit")
+        when (call.method) {
+            "getDoc" -> {
+                if (activity == null) {
+                    Log.e("PickerPlugin", "No activity attached")
+                    result.error("NO_ACTIVITY", "Plugin not attached to an activity", null)
+                    return
+                }
 
-        pendingResult = result
+                val mediaType = call.argument<String>("mediaType") ?: "document"
+                val limit = call.argument<Int>("limit") ?: 1
+                Log.d("PickerPlugin", "getMedia - mediaType: $mediaType, limit: $limit")
 
-        val intent = Intent(Intent.ACTION_GET_CONTENT)
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, limit > 1)
-        intent.addCategory(Intent.CATEGORY_OPENABLE)
+                pendingResult = result
 
-        when (mediaType) {
-          "audio" -> {
-            Log.d("PickerPlugin", "Launching audio picker")
-            intent.type = "audio/*"
-            activity?.startActivityForResult(Intent.createChooser(intent, "Select Audio"), 1002)
-          }
-          "document" -> {
-            Log.d("PickerPlugin", "Launching document picker")
-            intent.type = "*/*"
-            intent.putExtra(Intent.EXTRA_MIME_TYPES, arrayOf(
-              "application/pdf",
-              "application/msword",
-              "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-              "application/vnd.ms-excel",
-              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-              "text/plain",
-              "application/zip"
-            ))
-            activity?.startActivityForResult(Intent.createChooser(intent, "Select Document"), 1001)
-          }
-          else -> {
-            Log.e("PickerPlugin", "Invalid media type: $mediaType")
-            result.error("INVALID_MEDIA_TYPE", "Unsupported media type: $mediaType", null)
-          }
-        }
-      }
+                val intent = Intent(Intent.ACTION_GET_CONTENT)
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, limit > 1)
+                intent.addCategory(Intent.CATEGORY_OPENABLE)
 
-      "compressFile" -> {
-        val inputPath = call.argument<String>("inputPath")
-        val outputPath = call.argument<String>("outputPath")
+                when (mediaType) {
+                    "audio" -> {
+                        Log.d("PickerPlugin", "Launching audio picker")
+                        intent.type = "audio/*"
+                        activity?.startActivityForResult(
+                            Intent.createChooser(
+                                intent,
+                                "Select Audio"
+                            ), 1002
+                        )
+                    }
 
-        Log.d("PickerPlugin", "compressFile - inputPath: $inputPath, outputPath: $outputPath")
+                    "document" -> {
+                        Log.d("PickerPlugin", "Launching document picker")
+                        intent.type = "*/*"
+                        intent.putExtra(
+                            Intent.EXTRA_MIME_TYPES, arrayOf(
+                                "application/pdf",
+                                "application/msword",
+                                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                                "application/vnd.ms-excel",
+                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                                "text/plain",
+                                "application/zip"
+                            )
+                        )
+                        activity?.startActivityForResult(
+                            Intent.createChooser(
+                                intent,
+                                "Select Document"
+                            ), 1001
+                        )
+                    }
 
-        if (inputPath == null || outputPath == null) {
-          result.error("INVALID_ARGS", "Missing input or output path", null)
-          return
-        }
-
-        val extension = inputPath.substringAfterLast('.').lowercase()
-        try {
-          when (extension) {
-            "jpg", "jpeg", "png", "webp" -> {
-              Log.d("PickerPlugin", "Compressing image: $extension")
-              compressImage(inputPath, outputPath)
+                    else -> {
+                        Log.e("PickerPlugin", "Invalid media type: $mediaType")
+                        result.error(
+                            "INVALID_MEDIA_TYPE",
+                            "Unsupported media type: $mediaType",
+                            null
+                        )
+                    }
+                }
             }
-            else -> throw Exception("Unsupported file type: $extension")
-          }
-          Log.d("PickerPlugin", "Compression success: $outputPath")
-          result.success(outputPath)
+
+            "compressFile" -> {
+                val inputPath = call.argument<String>("inputPath")
+                var outputPath = call.argument<String>("outputPath")
+
+                Log.d(
+                    "PickerPlugin",
+                    "compressFile - inputPath: $inputPath, outputPath: $outputPath"
+                )
+
+                if (inputPath == null || outputPath == null) {
+                    result.error("INVALID_ARGS", "Missing input or output path", null)
+                    return
+                }
+
+                val extension = inputPath.substringAfterLast('.').lowercase()
+                try {
+                    when (extension) {
+                        "jpg", "jpeg", "png", "webp" -> {
+                            Log.d("PickerPlugin", "Compressing image: $extension")
+                            compressImage(inputPath, outputPath)
+                        }
+
+                        "temp" -> {
+                            Log.d("PickerPlugin", "Compressing image: $extension")
+
+                            outputPath = renameFileExtension(inputPath, "mp4")
+                        }
+
+                        else -> throw Exception("Unsupported file type: $extension")
+                    }
+                    Log.d("PickerPlugin", "Compression success: $outputPath")
+                    result.success(outputPath)
+                } catch (e: Exception) {
+                    Log.e("PickerPlugin", "Compression failed", e)
+                    result.error("COMPRESSION_FAILED", e.localizedMessage, null)
+                }
+            }
+
+            else -> {
+                Log.w("PickerPlugin", "Unknown methodd: ${call.method}")
+                result.notImplemented()
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
+        Log.d(
+            "PickerPlugin",
+            "onActivityResult - requestCode: $requestCode, resultCode: $resultCode"
+        )
+        if ((requestCode == 1001 || requestCode == 1002) && resultCode == Activity.RESULT_OK) {
+            val results = mutableListOf<String>()
+
+            if (data?.clipData != null) {
+                val count = data.clipData!!.itemCount
+                Log.d("PickerPlugin", "Multiple files selected: $count")
+                for (i in 0 until count) {
+                    val uri = data.clipData!!.getItemAt(i).uri
+                    val filePath = copyUriToFile(uri)
+                    if (filePath != null) {
+                        Log.d("PickerPlugin", "Copied file: $filePath")
+                        results.add(filePath)
+                    }
+                }
+            } else if (data?.data != null) {
+                val uri = data.data!!
+                val filePath = copyUriToFile(uri)
+                if (filePath != null) {
+                    Log.d("PickerPlugin", "Copied single file: $filePath")
+                    results.add(filePath)
+                }
+            }
+
+            pendingResult?.success(results)
+            return true
+        }
+        return false
+    }
+
+    private fun copyUriToFile(uri: Uri): String? {
+        return try {
+            val inputStream: InputStream? = activity?.contentResolver?.openInputStream(uri)
+            val fileName = getFileName(uri)
+            val file = File(activity?.cacheDir, fileName)
+            val outputStream = FileOutputStream(file)
+
+            inputStream?.copyTo(outputStream)
+            inputStream?.close()
+            outputStream.close()
+
+            Log.d("PickerPlugin", "copyUriToFile success: ${file.absolutePath}")
+            file.absolutePath
         } catch (e: Exception) {
-          Log.e("PickerPlugin", "Compression failed", e)
-          result.error("COMPRESSION_FAILED", e.localizedMessage, null)
+            Log.e("PickerPlugin", "Failed to copy file from URI", e)
+            null
         }
-      }
-
-      else -> {
-        Log.w("PickerPlugin", "Unknown methodd: ${call.method}")
-        result.notImplemented()
-      }
     }
-  }
 
-  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
-    Log.d("PickerPlugin", "onActivityResult - requestCode: $requestCode, resultCode: $resultCode")
-    if ((requestCode == 1001 || requestCode == 1002) && resultCode == Activity.RESULT_OK) {
-      val results = mutableListOf<String>()
-
-      if (data?.clipData != null) {
-        val count = data.clipData!!.itemCount
-        Log.d("PickerPlugin", "Multiple files selected: $count")
-        for (i in 0 until count) {
-          val uri = data.clipData!!.getItemAt(i).uri
-          val filePath = copyUriToFile(uri)
-          if (filePath != null) {
-            Log.d("PickerPlugin", "Copied file: $filePath")
-            results.add(filePath)
-          }
+    private fun getFileName(uri: Uri): String {
+        var name = "file"
+        val cursor: Cursor? = activity?.contentResolver?.query(uri, null, null, null, null)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                name = it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+            }
         }
-      } else if (data?.data != null) {
-        val uri = data.data!!
-        val filePath = copyUriToFile(uri)
-        if (filePath != null) {
-          Log.d("PickerPlugin", "Copied single file: $filePath")
-          results.add(filePath)
+        Log.d("PickerPlugin", "Extracted file name: $name")
+        return name
+    }
+
+    private fun compressImage(inputPath: String, outputPath: String) {
+        Log.d("PickerPlugin", "Starting image compression")
+        val exif = ExifInterface(inputPath)
+        val orientation = exif.getAttributeInt(
+            ExifInterface.TAG_ORIENTATION,
+            ExifInterface.ORIENTATION_NORMAL
+        )
+
+        val original = BitmapFactory.decodeFile(inputPath)
+        val rotated = when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(original, 90f)
+            ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(original, 180f)
+            ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmap(original, 270f)
+            else -> original
         }
-      }
 
-      pendingResult?.success(results)
-      return true
-    }
-    return false
-  }
+        val resized = Bitmap.createScaledBitmap(
+            rotated,
+            (rotated.width * 0.5).toInt(),
+            (rotated.height * 0.5).toInt(),
+            true
+        )
 
-  private fun copyUriToFile(uri: Uri): String? {
-    return try {
-      val inputStream: InputStream? = activity?.contentResolver?.openInputStream(uri)
-      val fileName = getFileName(uri)
-      val file = File(activity?.cacheDir, fileName)
-      val outputStream = FileOutputStream(file)
-
-      inputStream?.copyTo(outputStream)
-      inputStream?.close()
-      outputStream.close()
-
-      Log.d("PickerPlugin", "copyUriToFile success: ${file.absolutePath}")
-      file.absolutePath
-    } catch (e: Exception) {
-      Log.e("PickerPlugin", "Failed to copy file from URI", e)
-      null
-    }
-  }
-
-  private fun getFileName(uri: Uri): String {
-    var name = "file"
-    val cursor: Cursor? = activity?.contentResolver?.query(uri, null, null, null, null)
-    cursor?.use {
-      if (it.moveToFirst()) {
-        name = it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
-      }
-    }
-    Log.d("PickerPlugin", "Extracted file name: $name")
-    return name
-  }
-
-  private fun compressImage(inputPath: String, outputPath: String) {
-    Log.d("PickerPlugin", "Starting image compression")
-    val exif = ExifInterface(inputPath)
-    val orientation = exif.getAttributeInt(
-      ExifInterface.TAG_ORIENTATION,
-      ExifInterface.ORIENTATION_NORMAL
-    )
-
-    val original = BitmapFactory.decodeFile(inputPath)
-    val rotated = when (orientation) {
-      ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(original, 90f)
-      ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(original, 180f)
-      ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmap(original, 270f)
-      else -> original
+        val output = FileOutputStream(File(outputPath))
+        resized.compress(Bitmap.CompressFormat.JPEG, 80, output)
+        output.flush()
+        output.close()
+        Log.d("PickerPlugin", "Image compression finished")
     }
 
-    val resized = Bitmap.createScaledBitmap(
-      rotated,
-      (rotated.width * 0.5).toInt(),
-      (rotated.height * 0.5).toInt(),
-      true
-    )
+    private fun rotateBitmap(source: Bitmap, angle: Float): Bitmap {
+        Log.d("PickerPlugin", "Rotating bitmap by $angle degrees")
+        val matrix = Matrix()
+        matrix.postRotate(angle)
+        return Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
+    }
 
-    val output = FileOutputStream(File(outputPath))
-    resized.compress(Bitmap.CompressFormat.JPEG, 80, output)
-    output.flush()
-    output.close()
-    Log.d("PickerPlugin", "Image compression finished")
-  }
+    private fun renameFileExtension(oldPath: String, newExtension: String): String? {
+        return try {
+            val oldFile = File(oldPath)
+            if (!oldFile.exists()) {
+                Log.e("PickerPlugin", "File does not exist: $oldPath")
+                return null
+            }
 
-  private fun rotateBitmap(source: Bitmap, angle: Float): Bitmap {
-    Log.d("PickerPlugin", "Rotating bitmap by $angle degrees")
-    val matrix = Matrix()
-    matrix.postRotate(angle)
-    return Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
-  }
+            val newPath = oldPath.substringBeforeLast('.') + "." + newExtension
+            val newFile = File(newPath)
+
+            if (oldFile.renameTo(newFile)) {
+                Log.d("PickerPlugin", "File renamed to: $newPath")
+                newPath
+            } else {
+                Log.e("PickerPlugin", "Failed to rename file")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("PickerPlugin", "Error renaming file", e)
+            null
+        }
+    }
+
 }
