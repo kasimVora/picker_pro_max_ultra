@@ -139,14 +139,25 @@ class _CameraScreenState extends State<CameraScreen>
                                 highlightColor: Colors.transparent,
                                 splashColor: Colors.transparent,
                                 onTap: () async {
+
                                   debugPrint(
                                       " $isHDR  ${(await File(filePath!).length()) / 1024} kb");
                                   print("Filter path == $filePath");
                                   if (!context.mounted) return;
-                                  Navigator.of(context).pop(isHDR
-                                      ? File(filePath!)
-                                      : await PickerProMaxUltra()
-                                          .compressFile(inputPath: filePath!));
+
+                                  if(isHDR){
+                                    Navigator.of(context).pop( File(filePath!));
+                                  }else{
+                                    Navigator.of(context).pop( File(filePath!));
+                                    // PickerProMaxUltra()
+                                    //     .compressFile(inputPath: filePath!).then((file){
+                                    //   Navigator.of(context).pop(file);
+                                    // });
+
+                                  }
+
+
+
                                 },
                                 child: Icon(
                                   Icons.check,

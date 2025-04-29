@@ -135,7 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: () async {
              MediaPicker(
                 context: context,
-              ).capturedFile(allowRecord: false).then((file) {
+              ).capturedFile(allowRecord: true).then((file) {
                /// hide loader
                if (file != null) {
                  filePath = file.path;

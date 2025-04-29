@@ -21,6 +21,11 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import androidx.exifinterface.media.ExifInterface
+import com.arthenica.ffmpegkit.FFmpegKit
+import com.arthenica.ffmpegkit.ReturnCode
+import com.arthenica.ffmpegkit.Session
+
+
 
 
 class PickerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
@@ -155,6 +160,12 @@ class PickerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
                             Log.d("PickerPlugin", "Compressing image: $extension")
 
                             outputPath = renameFileExtension(inputPath, "mp4")
+                            if (outputPath != null) {
+                                compressVideo(outputPath, result)
+                            } else {
+                                result.error("RENAME_FAILED", "Could not rename file", null)
+                            }
+                            return
                         }
 
                         else -> throw Exception("Unsupported file type: $extension")
@@ -299,5 +310,37 @@ class PickerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
             null
         }
     }
+
+
+
+    private fun compressVideo(inputPath: String?, result: MethodChannel.Result) {
+        // Check if inputPath is valid
+        if (inputPath == null) {
+            result.error("INVALID_PATH", "Input path is null", null)
+            return
+        }
+
+        // Extract the directory from the inputPath and create a new output file name
+        val inputFile = File(inputPath)
+        val directoryPath = inputFile.parent
+        val outputPath = "$directoryPath/compressed_${System.currentTimeMillis()}.mp4"
+
+        val command = "-y -loglevel debug -i $inputPath -c:v mpeg4 $outputPath"
+
+        FFmpegKit.executeAsync(command) { session: Session ->
+            val returnCode = session.returnCode
+            if (ReturnCode.isSuccess(returnCode)) {
+                val outputFile = File(outputPath)
+                if (outputFile.exists()) {
+                    result.success(outputPath)
+                } else {
+                    result.error("FILE_NOT_CREATED", "Output file was not created.", null)
+                }
+            } else {
+                result.error("COMPRESSION_FAILED", "FFmpeg failed: ${session.failStackTrace}", null)
+            }
+        }
+    }
+
 
 }
