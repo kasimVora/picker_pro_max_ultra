@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:picker_pro_max_ultra/media_picker_widget.dart';
+import 'package:picker_pro_max_ultra/platform_config.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,7 +26,19 @@ class MyApp extends StatelessWidget {
       title: 'Media Picker',
       theme: ThemeData(
         primarySwatch: Colors.green,
+        extensions: <ThemeExtension<dynamic>>[
+          // const PickerThemeData(
+          //   bottomSheetBackgroundColor: Colors.black,
+          //   bottomSheetIndicatorColor: Colors.blue,
+          //   tabDisableColor: Colors.grey,
+          //   tabEnableColor: Colors.red,
+          //   doneTextStyle: TextStyle(color: Colors.orange),
+          //   cancelTextStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          //   borderRadius: 10,
+          // ),
+        ],
       ),
+
       home: const MyHomePage(),
     );
   }
@@ -133,17 +146,21 @@ class _MyHomePageState extends State<MyHomePage> {
           FloatingActionButton(
             child: const Icon(Icons.camera),
             onPressed: () async {
-             MediaPicker(
+            var d = await MediaPicker(
                 context: context,
-              ).capturedFile(allowRecord: true).then((file) {
+              ).capturedFile(allowRecord: false).then((file) {
                /// hide loader
                if (file != null) {
                  filePath = file.path;
+                 print("capture == $filePath");
                  setState(() {});
                }
              }).catchError((onError) {
                /// hide loader
+                print("capture == $onError");
              });
+
+            print("object");
             },
           ),
           FloatingActionButton(

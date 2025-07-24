@@ -3,8 +3,9 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:camera/camera.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../picker_pro_max_ultra.dart';
 
@@ -45,6 +46,13 @@ class _CameraScreenState extends State<CameraScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness:
+              Brightness.light, // For light status bar icons
+        ),
+      );
       WidgetsBinding.instance.addObserver(this);
       initCamera();
     });
@@ -53,195 +61,37 @@ class _CameraScreenState extends State<CameraScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: controller != null
-          ? captured
-              ? Container(
-                  color: Colors.black,
-                )
-              : Stack(
-                  alignment: Alignment.topRight,
-                  children: [
-                    camera(),
-                    Positioned.directional(
-                      end: 10,
-                      textDirection: Directionality.of(context),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const SizedBox(
-                            height: 50,
-                          ),
-                          flashButton(context),
-                          const SizedBox(
-                            height: 15,
-                          ),
-                          toggleCamera(context),
-                          const SizedBox(
-                            height: 15,
-                          ),
-                          CircleAvatar(
-                            backgroundColor: Colors.black,
-                            radius: 20,
-                            child: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  isHDR = !isHDR;
-                                  startCamera(
-                                    index: cameIndex,
-                                    resolution: isHDR
-                                        ? ResolutionPreset.ultraHigh
-                                        : ResolutionPreset.high,
-                                  );
-                                });
-                              },
-                              icon: Icon(
-                                Icons.hd,
-                                color: isHDR ? Colors.blue : Colors.white,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 15,
-                          ),
-                          Visibility(
-                            visible: false, // todo commented for now
-                            child: CircleAvatar(
-                              backgroundColor: Colors.black,
-                              radius: 20,
-                              child: IconButton(
-                                onPressed: () {
-                                  toggleFilter();
-                                },
-                                icon: Icon(
-                                  Icons.filter_none,
-                                  color: filterVisibility
-                                      ? Colors.blue
-                                      : Colors.white,
-                                ),
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                    cameraButtons(context),
-                    Visibility(
-                      visible: filePath != null,
-                      child: Positioned.directional(
-                        end: 20,
-                        bottom: 20,
-                        textDirection: Directionality.of(context),
-                        child: SafeArea(
-                          child: CircleAvatar(
-                            backgroundColor: Colors.black,
-                            radius: 20,
-                            child: InkWell(
-                                highlightColor: Colors.transparent,
-                                splashColor: Colors.transparent,
-                                onTap: () async {
+      backgroundColor: Colors.black,
+      body: SafeArea(
+        top: false,
+        child: controller != null
+            ? captured
+                ? Container(color: Colors.black)
+                : Stack(
+                    children: [
+                      // Camera Preview
+                      _buildCameraPreview(),
 
-                                  debugPrint(
-                                      " $isHDR  ${(await File(filePath!).length()) / 1024} kb");
-                                  print("Filter path == $filePath");
-                                  if (!context.mounted) return;
+                      // Top controls
+                      _buildTopControls(),
 
-                                  if(isHDR){
-                                    Navigator.of(context).pop( File(filePath!));
-                                  }else{
-                                    Navigator.of(context).pop( File(filePath!));
-                                    // PickerProMaxUltra()
-                                    //     .compressFile(inputPath: filePath!).then((file){
-                                    //   Navigator.of(context).pop(file);
-                                    // });
+                      // Bottom controls
+                      _buildBottomControls(),
 
-                                  }
-
-
-
-                                },
-                                child: Icon(
-                                  Icons.check,
-                                  color: Colors.white,
-                                  size: 23,
-                                )),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Visibility(
-                      visible: filePath != null,
-                      child: Positioned.directional(
-                        start: 20,
-                        bottom: 20,
-                        textDirection: Directionality.of(context),
-                        child: SafeArea(
-                          child: CircleAvatar(
-                            backgroundColor: Colors.black,
-                            radius: 20,
-                            child: InkWell(
-                                highlightColor: Colors.transparent,
-                                splashColor: Colors.transparent,
-                                onTap: () => clear(),
-                                child: Icon(
-                                  Icons.close,
-                                  color: Colors.white,
-                                  size: 23,
-                                )),
-                          ),
-                        ),
-                      ),
-                    )
-                  ],
-                )
-          : const SizedBox(),
-    );
-  }
-
-  zoomControl(BuildContext context) {
-    // Calculate the middle value between min and max zoom levels
-    double middleZoom = (maxZoomLevel + minZoomLevel) / 2;
-
-    // List to hold the zoom values: min, middle, max
-    List<int> zoomValues = [
-      minZoomLevel.toInt(),
-      middleZoom.toInt(),
-      maxZoomLevel.toInt()
-    ];
-
-    return SingleChildScrollView(
-      primary: false,
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        spacing: 10,
-        children: zoomValues.map((zoomValue) {
-          return GestureDetector(
-            onTap: () {
-              setZoom(zoomValue);
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.white, width: 1),
-                shape: BoxShape.circle,
-              ),
-              child: CircleAvatar(
-                backgroundColor: Colors.transparent,
-                child: Text(
-                  "${zoomValue}x",
-                  style: TextStyle(
-                    color: zoomValue == scale ? Colors.black : Colors.white,
-                    fontWeight: FontWeight.normal,
-                    fontSize: 10,
-                  ),
+                      // Capture confirmation buttons
+                      if (filePath != null) _buildConfirmationButtons(),
+                    ],
+                  )
+            : Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
               ),
-            ),
-          );
-        }).toList(),
       ),
     );
   }
 
-  camera() {
+  Widget _buildCameraPreview() {
     return SizedBox.expand(
       child: FittedBox(
         fit: BoxFit.cover,
@@ -254,87 +104,157 @@ class _CameraScreenState extends State<CameraScreen>
     );
   }
 
-  modeSwitch(BuildContext context) {
-    return Visibility(
-      visible: !isRecording,
-      child: IconButton(
-        onPressed: () {
-          switchMode(camMode == 0 ? 1 : 0);
-        },
-        icon: Icon(camMode != 0 ? Icons.camera_alt : Icons.videocam_sharp),
-        color: Colors.white,
-        iconSize: 35,
-      ),
-    );
-  }
-
-  cameraButtons(BuildContext context) {
-    return Positioned.directional(
-      bottom: 0,
-      end: MediaQuery.sizeOf(context).width / 3.9,
-      textDirection: Directionality.of(context),
+  Widget _buildTopControls() {
+    return Positioned(
+      top: 16,
+      right: 16,
       child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              zoomControl(context),
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Row(
-                  spacing: 10,
-                  children: [
-                    if (!widget.allowRecord) typeChip(0),
-                    if (widget.allowRecord) typeChip(1),
-                  ],
-                ),
+        child: Column(
+          children: [
+            _buildIconButton(
+              icon: Icon(
+                flashMode == 0
+                    ? Icons.flash_on
+                    : flashMode == 1
+                        ? Icons.flash_auto
+                        : Icons.flash_off,
+                color: Colors.white,
+                size: 28,
               ),
-              const SizedBox(
-                height: 10,
-              ),
-              camMode != 0
-                  ? isRecording
-                      ? stopVideoButton()
-                      : startVideoButton(
-                          context: context,
-                        )
-                  : imageButton(),
-            ],
-          ),
+              onPressed: toggleFlash,
+            ),
+            const SizedBox(height: 16),
+            _buildIconButton(
+              icon:
+                  const Icon(Icons.cameraswitch, color: Colors.white, size: 28),
+              onPressed: () => startCamera(index: cameIndex == 0 ? 1 : 0),
+            ),
+            const SizedBox(height: 16),
+            _buildIconButton(
+              icon: Icon(Icons.hd,
+                  color: isHDR ? Colors.blue : Colors.white, size: 28),
+              onPressed: () {
+                setState(() {
+                  isHDR = !isHDR;
+                  startCamera(
+                    index: cameIndex,
+                    resolution: isHDR
+                        ? ResolutionPreset.ultraHigh
+                        : ResolutionPreset.high,
+                  );
+                });
+              },
+            ),
+          ],
         ),
       ),
     );
   }
 
-  typeChip(int mode) {
+  Widget _buildBottomControls() {
+    return Positioned(
+      bottom: 24,
+      left: 0,
+      right: 0,
+      child: Column(
+        children: [
+          // Zoom controls
+          _buildZoomControls(),
+          const SizedBox(height: 16),
+
+          // Mode selector
+          _buildModeSelector(),
+          const SizedBox(height: 24),
+
+          // Capture button
+          _buildCaptureButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildZoomControls() {
+    return Container(
+      height: 40,
+      margin: const EdgeInsets.symmetric(horizontal: 32),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          for (double zoom in [
+            minZoomLevel,
+            (maxZoomLevel + minZoomLevel) / 2,
+            maxZoomLevel
+          ])
+            GestureDetector(
+              onTap: () => setZoom(zoom.toInt()),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: scale == zoom
+                      ? Colors.white.withValues(alpha: 0.3)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(
+                  "${zoom.toInt()}x",
+                  style: TextStyle(
+                    color: scale == zoom ? Colors.white : Colors.white70,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModeSelector() {
+    return Container(
+      height: 40,
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (!widget.allowRecord)
+            _buildModeButton(0, Icons.camera_alt, "Photo"),
+          if (widget.allowRecord) _buildModeButton(1, Icons.videocam, "Video"),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModeButton(int mode, IconData icon, String label) {
     return InkWell(
-      onTap: () {
-        switchMode(mode);
-      },
+      onTap: () => switchMode(mode),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
           color: camMode == mode
-              ? Colors.grey
-              : Colors.grey.withValues(alpha: 0.2),
+              ? Colors.white.withValues(alpha: 0.2)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
           children: [
-            Icon(
-              mode == 0 ? CupertinoIcons.camera : CupertinoIcons.video_camera,
-              color: camMode == mode ? Colors.white : Colors.grey,
-            ),
-            const SizedBox(
-              width: 3,
-            ),
+            Icon(icon,
+                color: camMode == mode ? Colors.white : Colors.white70,
+                size: 20),
+            const SizedBox(width: 4),
             Text(
-              mode == 0 ? "Photo" : "Video",
+              label,
               style: TextStyle(
-                color: camMode == mode ? Colors.white : Colors.grey,
-                fontSize: camMode != mode ? 10 : 12,
-                fontWeight: FontWeight.w600,
+                color: camMode == mode ? Colors.white : Colors.white70,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -343,111 +263,126 @@ class _CameraScreenState extends State<CameraScreen>
     );
   }
 
-  toggleCamera(BuildContext context) {
-    return InkWell(
-      highlightColor: Colors.transparent,
-      splashColor: Colors.transparent,
-      onTap: () {
-        startCamera(index: cameIndex == 0 ? 1 : 0);
-      },
-      child: CircleAvatar(
-          backgroundColor: Colors.black,
-          radius: 20,
-          child: Icon(
-            Icons.cameraswitch_outlined,
-            color: Colors.white,
-            size: 20,
-          )),
-    );
-  }
-
-  flashButton(
-    BuildContext context,
-  ) {
-    return CircleAvatar(
-      backgroundColor: Colors.black,
-      radius: 20,
-      child: InkWell(
-          highlightColor: Colors.transparent,
-          splashColor: Colors.transparent,
-          onTap: () => toggleFlash(),
-          child: Icon(
-            flashMode == 0
-                ? Icons.flash_on
-                : flashMode == 1
-                    ? Icons.flash_auto
-                    : Icons.flash_off,
-            color: Colors.white,
-            size: 23,
-          )),
-    );
-  }
-
-  imageButton() {
-    return GestureDetector(
-      onTap: () async => takePhoto(),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.white, width: 3),
-          borderRadius: const BorderRadius.all(Radius.circular(40)),
-        ),
-        child: Container(
-          height: 65,
-          width: 65,
-          color: Colors.transparent,
-        ),
-      ),
-    );
-  }
-
-  startVideoButton({required BuildContext context}) {
-    return GestureDetector(
-      onTap: () {
-        recordVideo();
-      },
-      child: Container(
-        height: 70,
-        width: 70,
-        decoration: BoxDecoration(
-            border: Border.all(color: Colors.white, width: 2),
-            borderRadius: const BorderRadius.all(Radius.circular(40)),
-            color: Colors.red),
-      ),
-    );
-  }
-
-  stopVideoButton() {
-    return GestureDetector(
-      onTap: () async {
-        recordVideo();
-        stopTimer();
-      },
-      child: Column(
-        children: [
-          Container(
-            height: 70,
-            width: 70,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.white, width: 4),
-              borderRadius: const BorderRadius.all(Radius.circular(40)),
-              color: Colors.transparent,
-            ),
-            child: Container(
-                decoration: const BoxDecoration(
-                    // border: Border.all(color: Colors.transparent, width: 5),
-                    borderRadius: BorderRadius.all(Radius.circular(50)),
-                    color: Colors.transparent),
-                child: const Icon(
-                  Icons.square,
-                  color: Colors.red,
-                  size: 30,
-                )),
+  Widget _buildCaptureButton() {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        // Outer ring
+        Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+                color: Colors.white.withValues(alpha: 0.4), width: 4),
           ),
-          Text(
-            getDuration(timer),
-            style: const TextStyle(color: Colors.white),
-          )
+        ),
+
+        // Main capture button
+        GestureDetector(
+          onTap: camMode != 0
+              ? isRecording
+                  ? () {
+                      recordVideo();
+                      stopTimer();
+                    }
+                  : recordVideo
+              : takePhoto,
+          child: Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: camMode != 0 && isRecording ? Colors.red : Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.3),
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: camMode != 0 && isRecording
+                ? const Icon(Icons.stop_rounded, color: Colors.white, size: 45)
+                : null,
+          ),
+        ),
+
+        // Recording timer
+        if (camMode != 0 && isRecording)
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: Text(
+                getDuration(timer),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildConfirmationButtons() {
+    return Positioned(
+      bottom: 24,
+      left: 24,
+      right: 24,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Cancel button
+          _buildControlButton(
+            icon: Icons.close,
+            onPressed: clear,
+          ),
+
+          // Confirm button
+          _buildControlButton(
+            icon: Icons.check,
+            onPressed: () async {
+              if (!context.mounted) return;
+              Navigator.of(context).pop(File(filePath!));
+            },
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildControlButton(
+      {required IconData icon, required VoidCallback onPressed}) {
+    return Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.4),
+        shape: BoxShape.circle,
+      ),
+      child: IconButton(
+        icon: Icon(icon, color: Colors.white, size: 28),
+        onPressed: onPressed,
+      ),
+    );
+  }
+
+  Widget _buildIconButton(
+      {required Icon icon, required VoidCallback onPressed}) {
+    return Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.4),
+        shape: BoxShape.circle,
+      ),
+      child: IconButton(
+        icon: icon,
+        onPressed: onPressed,
       ),
     );
   }
@@ -536,21 +471,35 @@ class _CameraScreenState extends State<CameraScreen>
   }
 
   void recordVideo() async {
-    if (isRecording) {
-      await controller?.pausePreview();
-      var cFile = await controller?.stopVideoRecording();
-      isRecording = false;
-      if (cFile != null) {
-        filePath = File(cFile.path).path;
+    try {
+      if (isRecording) {
+        await controller?.pausePreview();
+        var cFile = await controller?.stopVideoRecording();
+        isRecording = false;
+        if (cFile != null) {
+          if (Platform.isAndroid) {
+            var f =
+                await PickerProMaxUltra().compressFile(inputPath: cFile.path);
+            if (f != null) {
+              filePath = f;
+            }
+          } else {
+            filePath = cFile.path;
+          }
+        }
+        setState(() {});
+      } else {
+        await controller?.prepareForVideoRecording();
+        await controller?.startVideoRecording();
+        isRecording = true;
+        timer = 0;
+        startTimer();
+        setState(() {});
       }
-      setState(() {});
-    } else {
-      await controller?.prepareForVideoRecording();
-      await controller?.startVideoRecording();
-      isRecording = true;
-      timer = 0;
-      startTimer();
-      setState(() {});
+    } catch (e) {
+      if (kDebugMode) {
+        print("recording error == ${e.toString()}");
+      }
     }
   }
 

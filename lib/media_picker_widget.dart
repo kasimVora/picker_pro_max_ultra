@@ -100,9 +100,7 @@ class MediaPicker {
               )),
     ).then((path) async {
       if (path != null) {
-        capturedPath = File(path);
-        debugPrint(
-            " after compress ${(await capturedPath?.length() ?? 0) / 1024} kb");
+        capturedPath = path;
       }
     }).catchError((e) {
       capturedPath = null;

@@ -1,26 +1,29 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../media_picker_widget.dart';
+import '../platform_config.dart';
 import 'custom_loading.dart';
 import 'media_manager.dart';
 
-/// A widget representing a selectable media tile in a grid.
+/// A widget that displays a media item (image, video, or audio) in a grid tile format.
 ///
-/// This widget displays a thumbnail of the media file and supports selection.
-/// If the media is a video, it also displays its duration.
-///
-/// - [media] represents the media item being displayed.
-/// - [onSelected] is a callback triggered when the media is selected.
-/// - [onThumbnailLoad] is an optional callback for when the thumbnail loads.
-/// - [isSelected] determines if the tile is selected.
-/// - [selectionIndex] shows the selection order when multiple files are selected.
+/// This tile handles:
+/// - Thumbnail loading and display
+/// - Selection state visualization
+/// - Media type indicators (duration for video/audio)
+/// - Tap and long-press interactions
 class MediaTile extends StatelessWidget {
-  /// Creates a [MediaTile] widget.
+  /// Creates a media tile widget.
+  ///
+  /// [media]: The media view model containing information about the media file.
+  /// [onSelected]: Callback when the tile is tapped.
+  /// [isSelected]: Whether this media item is currently selected.
+  /// [onThumbnailLoad]: Optional callback when the thumbnail is loaded.
+  /// [selectionIndex]: Optional index to display when selected (for multi-select).
   const MediaTile({
     super.key,
     required this.media,
@@ -30,30 +33,28 @@ class MediaTile extends StatelessWidget {
     this.selectionIndex,
   });
 
-  /// The media object associated with this tile.
+  /// The media view model containing information about the media file.
   final MediaViewModel media;
 
-  /// Callback triggered when the tile is selected.
+  /// Callback function invoked when the tile is tapped.
   final Function(MediaViewModel media) onSelected;
 
-  /// Whether the tile is currently selected.
+  /// Whether this media item is currently selected.
   final bool isSelected;
 
-  /// Callback triggered when the thumbnail loads.
+  /// Optional callback that provides the loaded thumbnail data.
   final ValueChanged<Uint8List?>? onThumbnailLoad;
 
-  /// The selection index when multiple media files are selected.
+  /// Optional index to display when selected (for multi-select scenarios).
   final int? selectionIndex;
-
-  /// Duration for selection animation.
-  final Duration _duration = const Duration(milliseconds: 200);
 
   @override
   Widget build(BuildContext context) {
-    // Load the media thumbnail asynchronously.
+    final customPickerTheme = Theme.of(context).extension<PickerThemeData>();
+
+    // Load thumbnail asynchronously
     var loadThumb = Future<Uint8List?>(() async {
       Uint8List? thumb = await media.thumbnailAsync;
-
       onThumbnailLoad?.call(thumb);
       return thumb;
     });
@@ -65,152 +66,159 @@ class MediaTile extends StatelessWidget {
         if (media.type != MediaType.audio && !snapshot.hasData) {
           return Shimmer(
             visible: !snapshot.hasData,
-            replacement: SizedBox(),
+            replacement: const SizedBox(),
             child: Container(
-              width: 100,
-              height: 100,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(10),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
           );
         }
 
-        return Padding(
-          padding: const EdgeInsets.all(0.5),
-          child: Stack(
-            children: [
-              Positioned.fill(
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: isSelected
+                ? Border.all(
+                    color: customPickerTheme?.tabEnableColor ??
+                        Theme.of(context).colorScheme.primary,
+                    width: 2,
+                  )
+                : null,
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Stack(
+              children: [
+                Positioned.fill(
                   child: GestureDetector(
-                onTap: () => onSelected(media),
-                onLongPress: () {
-                  if (media.type == MediaType.image &&
-                      media.mediaFile != null) {
-                    showImageDialog(context, media.mediaFile!);
-                  } else {
-                    showCustomToast(context,
-                        "${media.mediaFile?.fileName ?? ""} - ${twoDigits(media.videoDuration!.inMinutes)} : ${twoDigits(media.videoDuration!.inSeconds)}");
-                  }
-                },
-                child: Stack(
-                  children: [
-                    // Display the media thumbnail with an optional blur effect when selected.
-                    Positioned.fill(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: ClipRect(
-                          child: ImageFiltered(
-                            imageFilter: ImageFilter.blur(
-                              sigmaX: isSelected ? 5 : 0,
-                              sigmaY: isSelected ? 5 : 0,
-                            ),
-                            child: media.type == MediaType.audio
-                                ? Container(
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(12),
-                                        color: Colors.pinkAccent),
-                                    height: 100,
-                                    width: 100,
-                                    child: Center(
-                                      child: Icon(
-                                        CupertinoIcons.music_note,
-                                        size: 50,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  )
-                                : Image.memory(
-                                    media.thumbnail!,
-                                    cacheWidth: 250,
-                                    // Adjust as needed
-                                    cacheHeight: 250,
-                                    filterQuality: FilterQuality.low,
-                                    key: ValueKey<String>(media.id),
-                                    fit: BoxFit.cover,
+                    onTap: () => onSelected(media),
+                    onLongPress: () {
+                      if (media.type == MediaType.image &&
+                          media.mediaFile != null) {
+                        showImageDialog(context, media.mediaFile!);
+                      } else {
+                        showCustomToast(
+                          context,
+                          "${media.mediaFile?.fileName ?? ""} - ${twoDigits(media.videoDuration!.inMinutes)}:${twoDigits(media.videoDuration!.inSeconds)}",
+                        );
+                      }
+                    },
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: media.type == MediaType.audio
+                              ? Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .primaryContainer,
                                   ),
-                          ),
+                                  child: Center(
+                                    child: Icon(
+                                      CupertinoIcons.music_note,
+                                      size: 36,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer,
+                                    ),
+                                  ),
+                                )
+                              : Image.memory(
+                                  media.thumbnail!,
+                                  cacheWidth: 250,
+                                  cacheHeight: 250,
+                                  filterQuality: FilterQuality.low,
+                                  key: ValueKey<String>(media.id),
+                                  fit: BoxFit.cover,
+                                ),
                         ),
-                      ),
-                    ),
-
-                    // Overlay when the tile is selected.
-                    Positioned.fill(
-                      child: AnimatedOpacity(
-                        opacity: isSelected ? 1 : 0,
-                        curve: Curves.easeOut,
-                        duration: _duration,
-                        child: ClipRect(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: Colors.black26,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Video duration label (if media is a video).
-                    if (media.type != MediaType.image)
-                      Align(
-                        alignment: Alignment.bottomRight,
-                        child: Padding(
-                          padding: const EdgeInsets.all(6),
-                          child: Text(
-                            _formatDuration(media.videoDuration),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 13.5,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              )),
-
-              // Selection indicator (checkmark or selection index).
-              if (isSelected)
-                Transform.translate(
-                  offset: Offset.fromDirection(1, -4),
-                  child: Align(
-                    alignment: AlignmentDirectional.topEnd,
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.blue,
-                        shape: BoxShape.circle,
-                      ),
-                      padding: const EdgeInsets.all(8),
-                      child: selectionIndex == null
-                          ? const Icon(
-                              Icons.done,
-                              size: 16,
-                              color: Colors.white,
-                            )
-                          : Text(
-                              selectionIndex.toString(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
+                        if (isSelected)
+                          Positioned.fill(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.3),
+                                borderRadius: BorderRadius.circular(10),
                               ),
                             ),
+                          ),
+                        if (media.type != MediaType.image)
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: Container(
+                              margin: const EdgeInsets.all(8),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.7),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                _formatDuration(media.videoDuration),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                 ),
-            ],
+                if (isSelected)
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: customPickerTheme?.tabEnableColor ??
+                            Theme.of(context).colorScheme.primary,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            blurRadius: 2,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: selectionIndex == null
+                            ? Icon(
+                                Icons.check,
+                                size: 16,
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              )
+                            : Text(
+                                selectionIndex.toString(),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         );
       },
     );
   }
 
-  /// Formats a [Duration] into a human-readable string.
+  /// Formats a duration into HH:MM:SS or MM:SS format.
   ///
-  /// - If the duration is less than an hour, it returns `mm:ss`.
-  /// - If the duration is an hour or more, it returns `hh:mm:ss`.
+  /// [duration]: The duration to format.
+  /// Returns a formatted duration string.
   String _formatDuration(Duration? duration) {
     if (duration == null) return "";
     String twoDigits(int n) => n.toString().padLeft(2, "0");
@@ -220,21 +228,21 @@ class MediaTile extends StatelessWidget {
     return "${twoDigits(duration.inHours)}:$minutes:$seconds";
   }
 
-  /// Displays an image in a dialog with zoom and pan support.
+  /// Shows a full-screen dialog with the image for better viewing.
   ///
-  /// The dialog shows the provided [file] image with rounded corners,
-  /// and includes a close button to dismiss the dialog.
+  /// [context]: The build context.
+  /// [file]: The image file to display.
   void showImageDialog(BuildContext context, File file) {
     showDialog(
       context: context,
       builder: (context) {
         return Dialog(
           shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          backgroundColor: Colors.grey,
-          insetPadding: const EdgeInsets.all(20),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          insetPadding: const EdgeInsets.all(24),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(24),
             child: Stack(
               children: [
                 InteractiveViewer(
@@ -245,22 +253,28 @@ class MediaTile extends StatelessWidget {
                     file,
                     fit: BoxFit.contain,
                     width: double.infinity,
-                    height: MediaQuery.of(context).size.height * 0.5,
+                    height: MediaQuery.of(context).size.height * 0.6,
                   ),
                 ),
                 Positioned(
-                  top: 10,
-                  right: 10,
-                  child: GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
+                  top: 16,
+                  right: 16,
+                  child: IconButton(
+                    icon: Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.black.withValues(alpha: 0.5),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surface
+                            .withValues(alpha: 0.8),
                       ),
-                      padding: const EdgeInsets.all(6),
-                      child: const Icon(Icons.close, color: Colors.white),
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(
+                        Icons.close,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                     ),
+                    onPressed: () => Navigator.pop(context),
                   ),
                 ),
               ],
@@ -271,13 +285,10 @@ class MediaTile extends StatelessWidget {
     );
   }
 
-  /// Displays a custom toast message overlay in the current context.
+  /// Shows a custom toast message at the bottom of the screen.
   ///
-  /// This toast appears at the bottom of the screen with a semi-transparent
-  /// background and disappears after 2 seconds.
-  ///
-  /// [context] is the build context used to access the overlay.
-  /// [message] is the text content of the toast.
+  /// [context]: The build context.
+  /// [message]: The message to display.
   void showCustomToast(BuildContext context, String message) {
     final overlay = Overlay.of(context);
     final overlayEntry = OverlayEntry(
@@ -289,19 +300,18 @@ class MediaTile extends StatelessWidget {
           color: Colors.transparent,
           child: Center(
             child: Container(
-              width: 250,
-              // fixed width
-              height: 60,
-              // fixed height
-              alignment: Alignment.center,
+              constraints: const BoxConstraints(maxWidth: 280),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.85),
+                color: Theme.of(context).colorScheme.inverseSurface,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 message,
-                style: const TextStyle(color: Colors.white, fontSize: 14),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onInverseSurface,
+                  fontSize: 14,
+                ),
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -313,14 +323,13 @@ class MediaTile extends StatelessWidget {
     );
 
     overlay.insert(overlayEntry);
-
     Future.delayed(const Duration(seconds: 2))
         .then((_) => overlayEntry.remove());
   }
 
-  /// Returns a string representation of [n] with at least two digits,
-  /// padding with a leading zero if necessary.
+  /// Converts a number to two digits with leading zero if needed.
   ///
-  /// For example: `twoDigits(5)` returns `'05'`.
+  /// [n]: The number to convert.
+  /// Returns a two-digit string representation.
   String twoDigits(int n) => n.toString().padLeft(2, '0');
 }

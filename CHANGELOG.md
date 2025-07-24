@@ -1,3 +1,8 @@
+## 2.0.11
+- create custom theme for bottom sheet.
+- Camera UI changes.
+- plugin upgrade.
+
 ## 2.0.5
 - added web support for photo,documents,audio,video from storage.
 
