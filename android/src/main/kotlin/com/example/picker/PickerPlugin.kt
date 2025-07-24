@@ -21,9 +21,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import androidx.exifinterface.media.ExifInterface
-import com.arthenica.ffmpegkit.FFmpegKit
-import com.arthenica.ffmpegkit.ReturnCode
-import com.arthenica.ffmpegkit.Session
+
 
 
 
@@ -324,22 +322,22 @@ class PickerPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
         val inputFile = File(inputPath)
         val directoryPath = inputFile.parent
         val outputPath = "$directoryPath/compressed_${System.currentTimeMillis()}.mp4"
+        result.success(outputPath)
+//        val command = "-y -loglevel debug -i $inputPath -c:v mpeg4 $outputPath"
 
-        val command = "-y -loglevel debug -i $inputPath -c:v mpeg4 $outputPath"
-
-        FFmpegKit.executeAsync(command) { session: Session ->
-            val returnCode = session.returnCode
-            if (ReturnCode.isSuccess(returnCode)) {
-                val outputFile = File(outputPath)
-                if (outputFile.exists()) {
-                    result.success(outputPath)
-                } else {
-                    result.error("FILE_NOT_CREATED", "Output file was not created.", null)
-                }
-            } else {
-                result.error("COMPRESSION_FAILED", "FFmpeg failed: ${session.failStackTrace}", null)
-            }
-        }
+//        FFmpegKit.executeAsync(command) { session: Session ->
+//            val returnCode = session.returnCode
+//            if (ReturnCode.isSuccess(returnCode)) {
+//                val outputFile = File(outputPath)
+//                if (outputFile.exists()) {
+//                    result.success(outputPath)
+//                } else {
+//                    result.error("FILE_NOT_CREATED", "Output file was not created.", null)
+//                }
+//            } else {
+//                result.error("COMPRESSION_FAILED", "FFmpeg failed: ${session.failStackTrace}", null)
+//            }
+//        }
     }
 
 
