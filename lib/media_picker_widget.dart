@@ -46,6 +46,15 @@ class MediaPicker {
   /// The text shown on the done/confirm button in the picker UI.
   final String doneText;
 
+  /// The text shown on the selected permission state for select other medias.
+  final String moreText;
+
+  /// The text shown when no file founded.
+  final String emptyText;
+
+  /// The text shown to open the app settings.
+  final String openSettingText;
+
   /// Creates a [MediaPicker] instance.
   ///
   /// - [context]: The [BuildContext] of the screen where the picker is used.
@@ -55,7 +64,11 @@ class MediaPicker {
     required this.context,
     this.maxLimit = 1,
     this.cancelText = "Cancel",
-    this.doneText = "done",
+    this.doneText = "Done",
+    this.moreText = "Select more",
+    this.openSettingText = "open settings",
+    this.emptyText =
+        "No file found.This may be because storage is empty or the app doesn’t have permission to access them.",
     this.mediaType = MediaType.image,
   });
 
@@ -75,8 +88,8 @@ class MediaPicker {
         if (Platform.isIOS && mediaType == MediaType.audio) {
           throw "Audio picking is not supported for ios , You can use picFile () by passing MediaType.audio";
         }
-        return showGridBottomSheet(
-            context, maxLimit, mediaType, cancelText, doneText);
+        return showGridBottomSheet(context, maxLimit, mediaType, cancelText,
+            doneText, moreText, emptyText, openSettingText);
       }
     }
 

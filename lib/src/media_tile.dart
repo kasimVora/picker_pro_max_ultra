@@ -65,7 +65,7 @@ class MediaTile extends StatelessWidget {
         if (snapshot.hasError) return const SizedBox();
         if (media.type != MediaType.audio && !snapshot.hasData) {
           return Shimmer(
-            visible: !snapshot.hasData,
+            visible: false,
             replacement: const SizedBox(),
             child: Container(
               decoration: BoxDecoration(

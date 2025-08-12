@@ -67,7 +67,7 @@ class PickerThemeData extends ThemeExtension<PickerThemeData> {
       bottomSheetBackgroundColor:
           backgroundColor ?? this.bottomSheetBackgroundColor,
       bottomSheetIndicatorColor:
-          bottomSheetBackgroundColor ?? this.bottomSheetIndicatorColor,
+          bottomSheetBackgroundColor ?? bottomSheetIndicatorColor,
       tabEnableColor: tabEnableColor ?? this.tabEnableColor,
       tabDisableColor: tabDisableColor ?? this.tabDisableColor,
       doneTextStyle: doneTextStyle ?? this.doneTextStyle,

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_manager/photo_manager.dart';
 
@@ -25,6 +26,9 @@ Future<List<String>> showGridBottomSheet(
   MediaType type,
   String cancelText,
   String doneText,
+  String moreText,
+  String emptyText,
+  String openSetting,
 ) async {
   final result = await showModalBottomSheet<List<String>>(
     context: context,
@@ -73,6 +77,9 @@ Future<List<String>> showGridBottomSheet(
                       mediaType: type,
                       cancelText: cancelText,
                       doneText: doneText,
+                      moreText: moreText,
+                      emptyText: emptyText,
+                      openSetting: openSetting,
                     ),
                   ),
                 ],
@@ -100,12 +107,21 @@ class _MediaPickerBottomSheet extends StatefulWidget {
   /// Text for the done button.
   final String doneText;
 
+  final String moreText;
+
+  final String emptyText;
+
+  final String openSetting;
+
   /// Creates a media picker bottom sheet.
   const _MediaPickerBottomSheet({
     required this.maxLimit,
     required this.mediaType,
     required this.cancelText,
     required this.doneText,
+    required this.emptyText,
+    required this.moreText,
+    required this.openSetting,
   });
 
   @override
@@ -122,12 +138,13 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
   int tabIndex = 0;
   int currentPage = 0;
   final int pageLimit = 12;
-  bool isLimitFinished = false;
+  bool isLimitFinished = false, isLimitedPermission = false;
   LoadStatus loadStatus = LoadStatus.initial;
 
   @override
   void initState() {
     super.initState();
+
     init();
     _scrollController.addListener(_scrollListener);
   }
@@ -142,6 +159,18 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
 
   /// Initializes the media picker by fetching albums and media.
   Future<void> init() async {
+    if (widget.mediaType == MediaType.image ||
+        widget.mediaType == MediaType.video) {
+      final PermissionState ps = await PhotoManager.getPermissionState(
+          requestOption: PermissionRequestOption(
+              androidPermission: AndroidPermission(
+                  type: widget.mediaType == MediaType.image
+                      ? RequestType.image
+                      : RequestType.video,
+                  mediaLocation: false)));
+      isLimitedPermission = ps == PermissionState.limited;
+    }
+
     await fetchAlbums(widget.mediaType == MediaType.video
         ? RequestType.video
         : widget.mediaType == MediaType.audio
@@ -155,12 +184,23 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
   /// [type]: The type of media to fetch (image, video, or audio).
   Future<void> fetchAlbums(RequestType type) async {
     final temp = await PhotoManager.getAssetPathList(hasAll: false, type: type);
+    if (temp.isEmpty) {
+      setState(() {
+        loadStatus = LoadStatus.initial;
+        mediaFiles = [];
+        mediaFolders = [];
+      });
+      return;
+    }
     List<AssetPathEntity> filtered = [];
     for (final album in temp) {
       final count = await album.assetCountAsync;
       if (count > 0) filtered.add(album);
     }
-    setState(() => mediaFolders = filtered);
+
+    setState(() {
+      mediaFolders = filtered;
+    });
   }
 
   /// Fetches media files from a specific album.
@@ -236,6 +276,27 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Visibility(
+            visible: mediaFolders.isNotEmpty && isLimitedPermission,
+            child: InkWell(
+              onTap: () {
+                PhotoManager.openSetting();
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Align(
+                    alignment: AlignmentDirectional.topEnd,
+                    child: Text(
+                      widget.moreText,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    )),
+              ),
+            ),
+          ),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -276,10 +337,29 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
           const SizedBox(height: 16),
           Expanded(
             child: mediaFiles.isEmpty
-                ? Center(
-                    child: Text(
-                      "No ${widget.mediaType.name} file found",
-                      style: Theme.of(context).textTheme.bodyLarge,
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Center(
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(text: widget.emptyText),
+                            TextSpan(
+                              text: " ${widget.openSetting}",
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () async {
+                                  await PhotoManager.openSetting();
+                                  if (!context.mounted) return;
+                                  Navigator.of(context).pop();
+                                },
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        style: Theme.of(context).textTheme.bodyLarge,
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   )
                 : GridView.builder(
@@ -326,9 +406,9 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
                     },
                   ),
           ),
-          if (mediaFolders.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.all(16),
+          if (mediaFolders.isNotEmpty && widget.maxLimit > 1)
+            SafeArea(
+              minimum: EdgeInsets.symmetric(horizontal: 10),
               child: Row(
                 children: [
                   Expanded(

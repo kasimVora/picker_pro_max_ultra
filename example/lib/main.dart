@@ -83,16 +83,13 @@ class _MyHomePageState extends State<MyHomePage> {
               /// show loader
               MediaPicker(
                       context: context,
-                      maxLimit: 5 ?? 1,
+                      maxLimit: 1 ?? 1,
                       cancelText: "No",
                       doneText: "Yes",
                       mediaType: MediaType.image
               )
                   .showPicker()
                   .then((file) {
-
-                    print("file");
-                    print(file);
                 /// hide loader
                 if (file.isNotEmpty) {
                   filePath = file.first;
