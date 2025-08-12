@@ -327,7 +327,11 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
                     backgroundColor: customPickerTheme?.tabDisableColor ??
                         Theme.of(context).colorScheme.surface,
                     shape: StadiumBorder(
-                      side: BorderSide(color: Theme.of(context).dividerColor),
+                      side: BorderSide(
+                          color: tabIndex == index
+                              ? Colors.transparent
+                              : customPickerTheme?.tabBorderColor ??
+                                  Colors.white),
                     ),
                   ),
                 );

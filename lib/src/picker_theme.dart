@@ -20,6 +20,9 @@ class PickerThemeData extends ThemeExtension<PickerThemeData> {
   /// Color used for disabled/inactive tabs in the media picker.
   final Color? tabDisableColor;
 
+  /// Color used for disabled tabs border in the media picker.
+  final Color? tabBorderColor;
+
   /// Text style for the "Done" button text.
   final TextStyle? doneTextStyle;
 
@@ -49,12 +52,14 @@ class PickerThemeData extends ThemeExtension<PickerThemeData> {
     this.cancelButtonStyle,
     this.doneButtonStyle,
     this.borderRadius,
+    this.tabBorderColor,
   });
 
   @override
   PickerThemeData copyWith({
     Color? backgroundColor,
     Color? bottomSheetBackgroundColor,
+    Color? tabBorderColor,
     Color? tabEnableColor,
     Color? tabDisableColor,
     TextStyle? doneTextStyle,
@@ -75,6 +80,7 @@ class PickerThemeData extends ThemeExtension<PickerThemeData> {
       borderRadius: borderRadius ?? this.borderRadius,
       cancelButtonStyle: cancelButtonStyle ?? this.cancelButtonStyle,
       doneButtonStyle: doneButtonStyle ?? this.doneButtonStyle,
+      tabBorderColor: tabBorderColor ?? this.tabBorderColor,
     );
   }
 
@@ -85,6 +91,7 @@ class PickerThemeData extends ThemeExtension<PickerThemeData> {
       bottomSheetBackgroundColor: Color.lerp(
           bottomSheetBackgroundColor, other.bottomSheetBackgroundColor, t),
       tabDisableColor: Color.lerp(tabDisableColor, other.tabDisableColor, t),
+      tabBorderColor: Color.lerp(tabBorderColor, other.tabBorderColor, t),
       tabEnableColor: Color.lerp(tabEnableColor, other.tabEnableColor, t),
       bottomSheetIndicatorColor: Color.lerp(
           bottomSheetIndicatorColor, other.bottomSheetIndicatorColor, t),
