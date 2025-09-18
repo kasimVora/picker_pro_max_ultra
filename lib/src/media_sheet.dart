@@ -410,40 +410,41 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
                     },
                   ),
           ),
-          if (mediaFolders.isNotEmpty && widget.maxLimit > 1)
-            SafeArea(
-              minimum: EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context, <String>[]),
-                      style: customPickerTheme?.cancelButtonStyle,
-                      child: Text(widget.cancelText,
-                          style: customPickerTheme?.cancelTextStyle),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: FilledButton(
-                      onPressed: () {
-                        Navigator.pop(
-                          context,
-                          selectedFiles.isNotEmpty
-                              ? selectedFiles
-                                  .map((f) => f.mediaFile?.path ?? "")
-                                  .toList()
-                              : <String>[],
-                        );
-                      },
-                      style: customPickerTheme?.doneButtonStyle,
-                      child: Text(widget.doneText,
-                          style: customPickerTheme?.doneTextStyle),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          SafeArea(
+            minimum: EdgeInsets.symmetric(horizontal: 10),
+            child: mediaFolders.isNotEmpty && widget.maxLimit > 1
+                ? Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.pop(context, <String>[]),
+                          style: customPickerTheme?.cancelButtonStyle,
+                          child: Text(widget.cancelText,
+                              style: customPickerTheme?.cancelTextStyle),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: FilledButton(
+                          onPressed: () {
+                            Navigator.pop(
+                              context,
+                              selectedFiles.isNotEmpty
+                                  ? selectedFiles
+                                      .map((f) => f.mediaFile?.path ?? "")
+                                      .toList()
+                                  : <String>[],
+                            );
+                          },
+                          style: customPickerTheme?.doneButtonStyle,
+                          child: Text(widget.doneText,
+                              style: customPickerTheme?.doneTextStyle),
+                        ),
+                      ),
+                    ],
+                  )
+                : SizedBox.shrink(),
+          ),
         ],
       ),
     );
