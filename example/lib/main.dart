@@ -1,4 +1,6 @@
 
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -128,7 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: () async {
               MediaPicker(
                 context: context,
-                mediaType: MediaType.audio
+                mediaType: MediaType.document
               ).picFile().then((file) {
                 /// hide loader
                 if (file != null) {
@@ -164,21 +166,37 @@ class _MyHomePageState extends State<MyHomePage> {
             child: const Icon(Icons.music_note),
             onPressed: () async {
               /// show loader
-              MediaPicker(
-                  context: context,
-                  maxLimit: 5 ?? 1,
-                  mediaType: MediaType.audio
-              )
-                  .showPicker()
-                  .then((file) {
-                /// hide loader
-                if (file.isNotEmpty) {
-                  filePath = file.first;
-                  setState(() {});
-                }
-              }).catchError((onError) {
-                /// hide loader
-              });
+              ///
+              if (Platform.isAndroid){
+                MediaPicker(
+                    context: context,
+                    maxLimit: 5 ?? 1,
+                    mediaType: MediaType.audio
+                )
+                    .showPicker()
+                    .then((file) {
+                  /// hide loader
+                  if (file.isNotEmpty) {
+                    filePath = file.first;
+                    setState(() {});
+                  }
+                }).catchError((onError) {
+                  /// hide loader
+                });
+              }else{
+                MediaPicker(
+                    context: context,
+                    mediaType: MediaType.audio
+                ).picFile().then((file) {
+                  /// hide loader
+                  if (file != null) {
+                    filePath = file.path;
+                    setState(() {});
+                  }
+                }).catchError((onError) {
+                  /// hide loader
+                });
+              }
             },
           ),
         ],

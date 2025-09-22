@@ -217,6 +217,7 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
       if (file != null) media.add(await MediaViewModel.toMediaViewModel(asset));
     }
 
+    if(!context.mounted) return;
     setState(() {
       if (currentPage == 0) mediaFiles.clear();
       mediaFiles.addAll(media);
