@@ -1,3 +1,8 @@
+## 2.0.14
+
+- fixed scrolling issue in image/video pick.
+
+
 ## 2.0.12
 
 - fixed loading issue.

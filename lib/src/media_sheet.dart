@@ -131,7 +131,6 @@ class _MediaPickerBottomSheet extends StatefulWidget {
 
 /// State class for [_MediaPickerBottomSheet].
 class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
-  final ScrollController _scrollController = ScrollController();
   List<AssetPathEntity> mediaFolders = [];
   List<MediaViewModel> mediaFiles = MediaViewModel.dummyList();
   List<MediaViewModel> selectedFiles = [];
@@ -144,17 +143,7 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
   @override
   void initState() {
     super.initState();
-
     init();
-    _scrollController.addListener(_scrollListener);
-  }
-
-  /// Listener for scroll events to implement infinite scrolling.
-  void _scrollListener() {
-    if (_scrollController.position.pixels ==
-        _scrollController.position.maxScrollExtent) {
-      fetchMediaOfAlbum(tabIndex);
-    }
   }
 
   /// Initializes the media picker by fetching albums and media.
@@ -366,48 +355,59 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
                       ),
                     ),
                   )
-                : GridView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      mainAxisSpacing: 12,
-                      crossAxisSpacing: 12,
-                      childAspectRatio: 1,
-                    ),
-                    itemCount: mediaFiles.length,
-                    itemBuilder: (context, index) {
-                      final media = mediaFiles[index];
-                      return Shimmer(
-                        visible: loadStatus == LoadStatus.loading,
-                        replacement: MediaTile(
-                          media: media,
-                          onThumbnailLoad: (thumb) {
-                            media.thumbnail = thumb;
-                            setState(() {});
-                          },
-                          onSelected: (_) {
-                            onFileSelect(media);
-                            if (widget.maxLimit == 1) {
-                              Navigator.pop(
-                                  context, [media.mediaFile?.path ?? ""]);
-                            }
-                          },
-                          isSelected:
-                              selectedFiles.any((t) => t.id == media.id),
-                          selectionIndex: getSelectionIndex(media),
-                        ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      );
+                : NotificationListener<ScrollNotification>(
+                    onNotification: (scrollNotification) {
+                      if (scrollNotification is ScrollEndNotification &&
+                          scrollNotification.metrics.pixels >=
+                              scrollNotification.metrics.maxScrollExtent -
+                                  100) {
+                        fetchMediaOfAlbum(tabIndex);
+                      }
+                      return false;
                     },
+                    child: GridView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      physics: AlwaysScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        mainAxisSpacing: 12,
+                        crossAxisSpacing: 12,
+                        childAspectRatio: 1,
+                      ),
+                      itemCount: mediaFiles.length,
+                      itemBuilder: (context, index) {
+                        final media = mediaFiles[index];
+                        return Shimmer(
+                          visible: loadStatus == LoadStatus.loading,
+                          replacement: MediaTile(
+                            media: media,
+                            onThumbnailLoad: (thumb) {
+                              media.thumbnail = thumb;
+                              setState(() {});
+                            },
+                            onSelected: (_) {
+                              onFileSelect(media);
+                              if (widget.maxLimit == 1) {
+                                Navigator.pop(
+                                    context, [media.mediaFile?.path ?? ""]);
+                              }
+                            },
+                            isSelected:
+                                selectedFiles.any((t) => t.id == media.id),
+                            selectionIndex: getSelectionIndex(media),
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
           ),
           SafeArea(
@@ -448,12 +448,5 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _scrollController.removeListener(_scrollListener);
-    _scrollController.dispose();
-    super.dispose();
   }
 }

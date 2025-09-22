@@ -83,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
               /// show loader
               MediaPicker(
                       context: context,
-                      maxLimit: 7 ?? 1,
+                      maxLimit: 1 ?? 1,
                       cancelText: "No",
                       doneText: "Yes",
                       mediaType: MediaType.image
