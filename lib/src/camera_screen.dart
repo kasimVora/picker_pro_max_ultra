@@ -195,7 +195,7 @@ class _CameraScreenState extends State<CameraScreen>
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: scale == zoom
+                  color: scale.toInt() == zoom.toInt()
                       ? Colors.white.withValues(alpha: 0.3)
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(16),
@@ -203,7 +203,7 @@ class _CameraScreenState extends State<CameraScreen>
                 child: Text(
                   "${zoom.toInt()}x",
                   style: TextStyle(
-                    color: scale == zoom ? Colors.white : Colors.white70,
+                    color: scale.toInt() == zoom.toInt() ? Colors.white : Colors.white70,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -549,11 +549,13 @@ class _CameraScreenState extends State<CameraScreen>
   }
 
   void setZoom(int level) {
+
     if (filePath == null) {
       setState(() {
         controller?.setZoomLevel(level.toDouble());
         scale = level.toDouble();
       });
+      print(scale);
     }
   }
 
