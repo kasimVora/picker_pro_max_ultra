@@ -203,7 +203,9 @@ class _CameraScreenState extends State<CameraScreen>
                 child: Text(
                   "${zoom.toInt()}x",
                   style: TextStyle(
-                    color: scale.toInt() == zoom.toInt() ? Colors.white : Colors.white70,
+                    color: scale.toInt() == zoom.toInt()
+                        ? Colors.white
+                        : Colors.white70,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -549,7 +551,6 @@ class _CameraScreenState extends State<CameraScreen>
   }
 
   void setZoom(int level) {
-
     if (filePath == null) {
       setState(() {
         controller?.setZoomLevel(level.toDouble());

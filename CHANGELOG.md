@@ -1,3 +1,7 @@
+## 2.0.16
+
+- fixed ios empty sheet when permission is limited and none selected.
+
 ## 2.0.14
 
 - fixed scrolling issue in image/video pick.

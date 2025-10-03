@@ -217,7 +217,7 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
       if (file != null) media.add(await MediaViewModel.toMediaViewModel(asset));
     }
 
-    if(!context.mounted) return;
+    if (!context.mounted) return;
     setState(() {
       if (currentPage == 0) mediaFiles.clear();
       mediaFiles.addAll(media);
@@ -267,7 +267,7 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Visibility(
-            visible: mediaFolders.isNotEmpty && isLimitedPermission,
+            visible: isLimitedPermission,
             child: InkWell(
               onTap: () {
                 PhotoManager.openSetting();
@@ -330,7 +330,7 @@ class _MediaPickerBottomSheetState extends State<_MediaPickerBottomSheet> {
           ),
           const SizedBox(height: 16),
           Expanded(
-            child: mediaFiles.isEmpty
+            child: mediaFolders.isEmpty
                 ? Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Center(
